@@ -1,20 +1,48 @@
-  var Ball = function() {
+var Ball = function(startPosition) {
+	//updatetime = senast man räknade bollen
+    this.updateTime = PhiloGL.Fx.animationTime();
+
+    this.velocity = new PhiloGL.Vec3(1, 0.5, 0);
+	
 	this.sphere = new PhiloGL.O3D.Sphere({
 		nlat: 30,
 		nlong: 30,
-		radius: 3,
-		colors: [1, 1, 1, 1],
-        position: {
-        x: 0, y: 0, z: -3
-      }
+		radius: Constants.ballRadius,
+		colors: [1, 1, 1, 1]
+       
 	});
-}
+	
+	this.sphere.position =   new PhiloGL.Vec3(startPosition.x, startPosition.y, -3);
+	this.sphere.update();
+};
+
+Ball.prototype.step = function() {
+    var elapsedTime = PhiloGL.Fx.animationTime()-this.updateTime;
+    //console.log('Elapsed: ' + elapsedTime);
+    var dist = this.velocity.scale(0.1 * elapsedTime);
+    //console.log('Dist: ' + dist);
+
+    this.move(dist);
+    this.updateTime = PhiloGL.Fx.animationTime();
+	this.sphere.update();
+};
 
 Ball.prototype.move = function(distance) {
-	this.sphere.position.x += distance;
-	
-	return this.sphere.position;
+	PhiloGL.Vec3.$add(this.sphere.position, distance);
+	//this.sphere.position.x += distance.x;
+};
+
+Ball.prototype.position = function() {
+    return this.sphere.position;
+};
+
+Ball.prototype.edgeCollision = function(cushion){
+	var dotten = this.velocity.dot(cushion.normal);
+	var v2 = cushion.normal.scale(-2*dotten).add(this.velocity);
+	v2 = v2.scale(0.8);
+	this.velocity = v2;
 }
+
 
 
 //Define a Star Class
