@@ -1,9 +1,7 @@
 function webGLStart() {
   var pos, $id = function(d) { return document.getElementById(d); };
-
   
-  
-  //Create table
+  //Create pooltable
   var table = new PhiloGL.O3D.Plane({
 	type: 'x,y',
 	xlen: Constants.tableX,
@@ -13,13 +11,14 @@ function webGLStart() {
 	offset: 0,
 	colors: [0.5, 1, 0.7, 1]
   });
-
+	
+	//Create edges
   var cushion0 = new Cushion([1,0,0,1],0);
   var cushion1 = new Cushion([0,1,0,1],1);
   var cushion2 = new Cushion([0,0,1,1],2);
   var cushion3 = new Cushion([1,0,1,1],3);
   
-  
+  //Create ball
   var newball = new Ball({x:-30 , y:-30});
 
   //Create application
@@ -76,10 +75,9 @@ function webGLStart() {
       gl.viewport(0, 0, +canvas.width, +canvas.height);
 
       //Add object to the scene
-    //  scene.add(ball);
 	  scene.add(table);
 	  scene.add(newball.sphere);
-        scene.add(cushion0.cube);
+      scene.add(cushion0.cube);
 		scene.add(cushion1.cube);
         scene.add(cushion2.cube);
 		scene.add(cushion3.cube);
@@ -90,11 +88,11 @@ function webGLStart() {
       //Animate
       draw();
 
-      //Draw the scene
+      //Draw the scene - this function is a big while loop
       function draw() {
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-          //Setup lighting
-		
+        
+		//test of moving the ball
 		var newpos;
 		if (newball.sphere.position.x < 287/2 - 3 ) {
 			newball.step();
@@ -103,9 +101,9 @@ function webGLStart() {
 			newball.edgeCollision(cushion0);
 			newball.step();
 		}
-		//newball.sphere.update();
-        //render moon
+		
         scene.render();
+		
         //request new frame
         PhiloGL.Fx.requestAnimationFrame(draw);
       }
