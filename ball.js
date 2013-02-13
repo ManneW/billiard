@@ -90,65 +90,36 @@ Ball.prototype.edgeCollision = function(cushion){
 	this.velocity = v2;
 };
 
-//KOLLAR OM BOLLEN KOLLIDERAR
+/**
+ * Check if this ball is colliding with otherBall.
+ *
+ * @param otherBall The other ball
+ * @return {Boolean} Returns true if they collide, false otherwise.
+ */
 Ball.prototype.isBallColliding = function(otherBall){
-	//if (this === otherBall) { console.log("self"); return false; }
-	//var dist = this.position.scale(-1);
-	
-	var dist = otherBall.position().sub(this.position());
-	dist = dist.norm();
+	var dist = (otherBall.position().sub(this.position())).norm();
 
     return (dist < 2*Constants.ballRadius);
-
-//	if (dist <= 2*Constants.ballRadius){
-//		return true;
-//	}
-//	else {
-//		return false;
-//    }
 };
 
 
-//POSITION?
-Ball.prototype.resolveBallImpactPosition = function(otherBall){
-    if (false) {
+/**
+ * Change the position of this ball to match the moment of collision with otherBall.
+ *
+ * @param otherBall The other ball to collide with
+ */
+Ball.prototype.resolveBallImpactPosition = function(otherBall) {
+    var dist = (otherBall.position().sub(this.position())).norm();
 
-	var resolutionLimit = 10;
-	var vn = this.velocity.scale(1/this.velocity.norm());
-	var k = vn.scale(Constants.ballRadius);
-	var k = this.distanceVectorToMoveFromMillis(Globals.timeSinceLastLoop * 200).scale(100);
-    var k_other = otherBall.distanceVectorToMoveFromMillis(Globals.timeSinceLastLoop * 200).scale(100);
-	for (var i = 0; i < resolutionLimit; i+=1){
-		if(this.isBallColliding(otherBall)){
-				this.getPosition().$sub(k);
-                //otherBall.getPosition().$sub(k_other);
-		} else{
-			this.getPosition().$add(k);
-            //otherBall.getPosition().$add(k_other);
-		}
-		k = k.scale(0.5);
-        //k_other = k_other.scale(0.5);
-	}
-
-    this.getPosition().$sub(k.scale(2));
-
-    } else {
-    //otherBall.getPosition().$sub(k_other);
-    //if (this.isBallColliding(otherBall)) {
-
-        var dist = otherBall.position().sub(this.position());
-        dist = dist.norm();
-
-        this.position().$add((this.velocity.scale(1.0/this.velocity.norm())).scale(2*Constants.ballRadius - dist));
-    //}
-
-    }
-
+    this.position().$add((this.velocity.scale(1.0/this.velocity.norm())).scale(2*Constants.ballRadius - dist));
 };
 
 
-
-//NYA HASTIGHETER EFTER KROCK
+/**
+ * Update velocities for collision with otherBall.
+ *
+ * @param otherBall The other ball to collide with.
+ */
 Ball.prototype.ballCollision = function(otherBall){
 
 	//Normalen
@@ -174,6 +145,11 @@ Ball.prototype.ballCollision = function(otherBall){
 	otherBall.velocity = v2ny;
 };
 
+/**
+ * Debug method to check whether the ball has left the table
+ *
+ * @return {Boolean} The ball has left the table
+ */
 Ball.prototype.offTable = function() {
     return ((this.position().x < -Constants.tableX / 2.0 || this.position().x > Constants.tableX / 2.0) ||
             (this.position().y < -Constants.tableY / 2.0 || this.position().y > Constants.tableY / 2.0));

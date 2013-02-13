@@ -137,109 +137,47 @@ function webGLStart() {
             //Animate
             draw();
 
+
             //Draw the scene - this function is a big while loop
             function draw() {
                 currentTime = PhiloGL.Fx.animationTime();
                 Globals.timeSinceLastLoop = currentTime - Globals.previousLoop.end;
+                gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
+                // Iterate all balls
+                for (var i = 0; i < balls.length; i += 1) {
+                    for (j = i + 1; j < balls.length; j += 1) {
+                        if (balls[i].isBallColliding(balls[j])) {
 
-                    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+                            if (!logg[i][j] && !logg[j][i]) {
 
-				
-				//Nollst�lla loggvektorn var tidssteg
-				//logg.length = 0;
-				
-				//BOLLKOLLISION
-				for(var i = 0 ; i < balls.length; i += 1) {
+                                // Calculate collision
+                                balls[i].ballCollision(balls[j]);
 
-					for (j = i + 1; j < balls.length; j += 1) {
-					
-						
-						////Pr�vade att ha en loggvektor �ver alla kombinationer som krockat och endast genomf�ra 
-						////kollisionen om bollparet ej fanns med i loggen. (dvs ej krockat tidigare i samma tidssteg). 
-						////Samma resultat som att s�tta j = i. Dvs inte s� bra. 
-						// var check = false;			
-						// if (logg.length != 0){
-							// for (var k = 0; k < logg.length; k +=1){					
-									// if(logg[k].x == i & logg[k].y  == j ){
-										// console.log(logg[k]);
-										// check = true;
-									// }
-									// if(logg[k].x == j & logg[k].y  == i ){
-										// console.log(logg[k]);
-										// check = true;
-									// }								
-							// }
-						// }
-						//if(i != j && check == false){
-						
-						
-						 if(i != j){
-                             //if (balls[i].velocity.norm() > balls[j].velocity.norm()) {
+                                // Move the balls to correct positions
+                                balls[i].resolveBallImpactPosition(balls[j]);
 
-                                 if(balls[i].isBallColliding(balls[j])){
+                                // Log that a collision has occurred
+                                logg[i][j] = true;
+                                logg[j][i] = true;
+                            }
+                        } else {
+                            // Reset log entry for collision pair
+                            logg[i][j] = false;
+                            logg[j][i] = false;
+                        }
+                    }
 
-//                                     if (balls[i].velocity.norm() == 0 || balls[j].velocity.norm() == 0) {
-//                                         console.log("One not moving");
-//                                     }
-
-                                     //L�gga till i loggvektorn om kollision intr�ffar
-                                     //var test = new PhiloGL.Vec3(i,j,0);
-                                     //logg.push(test);
-
-
-                                     if (!logg[i][j] && !logg[j][i]) {
-                                        //KROCK
-                                        balls[i].ballCollision(balls[j]);
-
-
-                                        //FLYTTA R�TT
-                                        balls[i].resolveBallImpactPosition(balls[j]);
-
-
-                                        logg[i][j] = true;
-                                        logg[j][i] = true;
-                                     }
-
-
-
-    //                                while (balls[i].isBallColliding(balls[j])) {
-    //                                    balls[i].step();
-    //                                    balls[j].step();
-    //                                }
-                                 } else {
-                                     logg[i][j] = false;
-                                     logg[j][i] = false;
-                                 }
-                             //}
-                         }
-						 
-					}
-
+                    // Collision with edges
                     for (var cushionIndex = 0; cushionIndex < cushions.length; cushionIndex += 1) {
                         cushions[cushionIndex].resolveCollision(balls[i]);
                     }
+                }
 
-                    //balls[i].step();
-
-                    if (balls[i].offTable()) {
-                        console.log("OFF TABLE!");
-                    }
-				}
-
-                //KANTKOLLISION
-//                for (var i = 0; i < cushions.length; i += 1) {
-//                    for (var j = 0; 	j < balls.length; j += 1) {
-//                        cushions[i].resolveCollision(balls[j]);
-//                    }
-//                }
-				
-				//F�RFLYTTNING
+                // Update position and velocities for all balls
                 for (i = 0; i < balls.length; i += 1) {
                     balls[i].step();
                 }
-
-
 
                 scene.render();
 
