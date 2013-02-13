@@ -24,18 +24,30 @@ function webGLStart() {
     //Create arrays to keep track of balls and cushions
     var balls = [];
     var cushions = [];
-	var logg = [];
 
     // Randomize a bunch of balls
     for (var ballCount = 0; ballCount < 20; ballCount += 1) {
         var randomBall = new Ball(
             {
-                x: ((Math.random()*2) - 1) * 0.5 * Constants.tableX,
-                y: ((Math.random()*2) - 1) * 0.5 * Constants.tableY
+                x: ((Math.random()*2) - 1) * 0.2 * Constants.tableX,
+                y: ((Math.random()*2) - 1) * 0.2 * Constants.tableY
             }
         );
-        randomBall.velocity = (new PhiloGL.Vec3(Math.random(), Math.random(), 0)).scale(1);
+        if (Math.random() > 0.5) {
+            randomBall.velocity = (new PhiloGL.Vec3(Math.random(), Math.random(), 0)).scale(1);
+        } else {
+            randomBall.velocity = (new PhiloGL.Vec3(0, 0, 0)).scale(1);
+        }
         balls.push(randomBall);
+    }
+
+    // Create logg array
+    var logg = new Array(balls.length);
+    for (var i = 0; i < logg.length; i += 1) {
+        logg[i] = new Array(balls.length);
+        for (var j = 0; j < logg[i].length; j += 1) {
+            logg[i][j] = false;
+        }
     }
 	
 
@@ -134,17 +146,17 @@ function webGLStart() {
                     }
                 }
 				
-				//Nollställa loggvektorn var tidssteg
+				//Nollstï¿½lla loggvektorn var tidssteg
 				//logg.length = 0;
 				
 				//BOLLKOLLISION
 				for(var i = 0 ; i < balls.length; i += 1){
-					for (j = 0; j < balls.length; j += 1){
+					for (j = i; j < balls.length; j += 1){
 					
 						
-						////Prövade att ha en loggvektor över alla kombinationer som krockat och endast genomföra 
+						////Prï¿½vade att ha en loggvektor ï¿½ver alla kombinationer som krockat och endast genomfï¿½ra 
 						////kollisionen om bollparet ej fanns med i loggen. (dvs ej krockat tidigare i samma tidssteg). 
-						////Samma resultat som att sätta j = i. Dvs inte så bra. 
+						////Samma resultat som att sï¿½tta j = i. Dvs inte sï¿½ bra. 
 						// var check = false;			
 						// if (logg.length != 0){
 							// for (var k = 0; k < logg.length; k +=1){					
@@ -162,24 +174,49 @@ function webGLStart() {
 						
 						
 						 if(i != j){
-							 if(balls[i].isBallColliding(balls[j])){
-								
-								//Lägga till i loggvektorn om kollision inträffar
-								//var test = new PhiloGL.Vec3(i,j,0);
-								//logg.push(test);
-								
-								//FLYTTA RÄTT								
-								balls[i].resolveBallImpactPosition(balls[j]);
-								
-								//KROCK
-								balls[i].ballCollision(balls[j]);
-							 }
-						 }
+                             //if (balls[i].velocity.norm() > balls[j].velocity.norm()) {
+
+                                 if(balls[i].isBallColliding(balls[j])){
+
+                                     if (balls[i].velocity.norm() == 0 || balls[j].velocity.norm() == 0) {
+                                         console.log("One not moving");
+                                     }
+
+                                     //Lï¿½gga till i loggvektorn om kollision intrï¿½ffar
+                                     //var test = new PhiloGL.Vec3(i,j,0);
+                                     //logg.push(test);
+
+
+                                     if (!logg[i][j] && !logg[j][i]) {
+                                        //KROCK
+                                        balls[i].ballCollision(balls[j]);
+
+
+                                        //FLYTTA Rï¿½TT
+                                        balls[i].resolveBallImpactPosition(balls[j]);
+
+
+                                        logg[i][j] = true;
+                                        logg[j][i] = true;
+                                     }
+
+
+
+    //                                while (balls[i].isBallColliding(balls[j])) {
+    //                                    balls[i].step();
+    //                                    balls[j].step();
+    //                                }
+                                 } else {
+                                     logg[i][j] = false;
+                                     logg[j][i] = false;
+                                 }
+                             //}
+                         }
 						 
 					}		
 				}
 				
-				//FÖRFLYTTNING
+				//Fï¿½RFLYTTNING
                 for (i = 0; i < balls.length; i += 1) {
                     balls[i].step();
                 }

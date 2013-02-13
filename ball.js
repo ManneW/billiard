@@ -95,34 +95,56 @@ Ball.prototype.isBallColliding = function(otherBall){
 	//if (this === otherBall) { console.log("self"); return false; }
 	//var dist = this.position.scale(-1);
 	
-	var dist = otherBall.position().scale(-1).add(this.position());	
+	var dist = otherBall.position().sub(this.position());
 	dist = dist.norm();
-	
-	if(dist <= 2*Constants.ballRadius){
-	//	console.log(dist);
-		return true;
-	}
-	else
-		return false;	
+
+    return (dist < 2*Constants.ballRadius);
+
+//	if (dist <= 2*Constants.ballRadius){
+//		return true;
+//	}
+//	else {
+//		return false;
+//    }
 };
 
 
 //POSITION?
 Ball.prototype.resolveBallImpactPosition = function(otherBall){
+    if (false) {
+
 	var resolutionLimit = 10;
-	//var vn = this.velocity.scale(1/this.velocity.norm());
-	//var k = vn.scale(Constants.ballRadius);
+	var vn = this.velocity.scale(1/this.velocity.norm());
+	var k = vn.scale(Constants.ballRadius);
 	var k = this.distanceVectorToMoveFromMillis(Globals.timeSinceLastLoop * 200).scale(100);
+    var k_other = otherBall.distanceVectorToMoveFromMillis(Globals.timeSinceLastLoop * 200).scale(100);
 	for (var i = 0; i < resolutionLimit; i+=1){
 		if(this.isBallColliding(otherBall)){
 				this.getPosition().$sub(k);
-		}
-		else{
+                //otherBall.getPosition().$sub(k_other);
+		} else{
 			this.getPosition().$add(k);
+            //otherBall.getPosition().$add(k_other);
 		}
-		k = k.scale(0.5);		
-	}	
-}
+		k = k.scale(0.5);
+        //k_other = k_other.scale(0.5);
+	}
+
+    this.getPosition().$sub(k.scale(2));
+
+    } else {
+    //otherBall.getPosition().$sub(k_other);
+    //if (this.isBallColliding(otherBall)) {
+
+        var dist = otherBall.position().sub(this.position());
+        dist = dist.norm();
+
+        this.position().$add((this.velocity.scale(1.0/this.velocity.norm())).scale(2*Constants.ballRadius - dist));
+    //}
+
+    }
+
+};
 
 
 
@@ -131,18 +153,18 @@ Ball.prototype.ballCollision = function(otherBall){
 
 	//Normalen
 	var n = this.position().add(otherBall.position().scale(-1));
-	n = n.scale(1/n.norm());
+	n = n.scale(1.0/n.norm());
 	
 	//normalkomponent
-	var dotten1 = this.velocity.dot(-n);
+	var dotten1 = this.velocity.dot(n.scale(-1));
 	var vn1 = n.scale(-1).scale(dotten1);
 	
 	var dotten2 = otherBall.velocity.dot(n);
 	var vn2 = n.scale(dotten2);
 	
 	//tangentkomponent
-	var vt1 = this.velocity.add(vn1.scale(-1));
-	var vt2 = otherBall.velocity.add(vn2.scale(-1));
+	var vt1 = this.velocity.sub(vn1);
+	var vt2 = otherBall.velocity.sub(vn2);
 	
 	//Nya hastigheter
 	var v1ny = vt1.add(vn2);
