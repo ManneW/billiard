@@ -173,3 +173,8 @@ Ball.prototype.ballCollision = function(otherBall){
 	this.velocity = v1ny;
 	otherBall.velocity = v2ny;
 };
+
+Ball.prototype.offTable = function() {
+    return ((this.position().x < -Constants.tableX / 2.0 || this.position().x > Constants.tableX / 2.0) ||
+            (this.position().y < -Constants.tableY / 2.0 || this.position().y > Constants.tableY / 2.0));
+};

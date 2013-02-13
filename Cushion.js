@@ -104,10 +104,10 @@ Cushion.prototype.isBallColliding = function(ball) {
     var index = this.cushionIndex;
     switch (index) {
         case 0:
-            collisionDetected = (ballPosition.x > cushionPosition.x -3);
+            collisionDetected = (ballPosition.x > cushionPosition.x - 3);
             break;
         case 1:
-            collisionDetected = (ballPosition.y > cushionPosition.y -3);
+            collisionDetected = (ballPosition.y > cushionPosition.y - 3);
             break;
         case 2:
             collisionDetected = (ballPosition.x < cushionPosition.x + 3);

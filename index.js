@@ -38,7 +38,12 @@ function webGLStart() {
         } else {
             randomBall.velocity = (new PhiloGL.Vec3(0, 0, 0)).scale(1);
         }
-        balls.push(randomBall);
+
+        if (randomBall.offTable()) {
+            console.log("Start off table?");
+        } else {
+            balls.push(randomBall);
+        }
     }
 
     // Create logg array
@@ -139,19 +144,15 @@ function webGLStart() {
 
 
                     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-				//KANTKOLLISION
-                for (var i = 0; i < cushions.length; i += 1) {
-                    for (var j = 0; 	j < balls.length; j += 1) {
-                        cushions[i].resolveCollision(balls[j]);
-                    }
-                }
+
 				
 				//Nollst�lla loggvektorn var tidssteg
 				//logg.length = 0;
 				
 				//BOLLKOLLISION
-				for(var i = 0 ; i < balls.length; i += 1){
-					for (j = i; j < balls.length; j += 1){
+				for(var i = 0 ; i < balls.length; i += 1) {
+
+					for (j = i + 1; j < balls.length; j += 1) {
 					
 						
 						////Pr�vade att ha en loggvektor �ver alla kombinationer som krockat och endast genomf�ra 
@@ -178,9 +179,9 @@ function webGLStart() {
 
                                  if(balls[i].isBallColliding(balls[j])){
 
-                                     if (balls[i].velocity.norm() == 0 || balls[j].velocity.norm() == 0) {
-                                         console.log("One not moving");
-                                     }
+//                                     if (balls[i].velocity.norm() == 0 || balls[j].velocity.norm() == 0) {
+//                                         console.log("One not moving");
+//                                     }
 
                                      //L�gga till i loggvektorn om kollision intr�ffar
                                      //var test = new PhiloGL.Vec3(i,j,0);
@@ -213,13 +214,32 @@ function webGLStart() {
                              //}
                          }
 						 
-					}		
+					}
+
+                    for (var cushionIndex = 0; cushionIndex < cushions.length; cushionIndex += 1) {
+                        cushions[cushionIndex].resolveCollision(balls[i]);
+                    }
+
+                    //balls[i].step();
+
+                    if (balls[i].offTable()) {
+                        console.log("OFF TABLE!");
+                    }
 				}
+
+                //KANTKOLLISION
+//                for (var i = 0; i < cushions.length; i += 1) {
+//                    for (var j = 0; 	j < balls.length; j += 1) {
+//                        cushions[i].resolveCollision(balls[j]);
+//                    }
+//                }
 				
 				//F�RFLYTTNING
                 for (i = 0; i < balls.length; i += 1) {
                     balls[i].step();
                 }
+
+
 
                 scene.render();
 
