@@ -89,3 +89,65 @@ Ball.prototype.edgeCollision = function(cushion){
 	v2 = v2.scale(1);
 	this.velocity = v2;
 };
+
+//KOLLAR OM BOLLEN KOLLIDERAR
+Ball.prototype.isBallColliding = function(otherBall){
+	//if (this === otherBall) { console.log("self"); return false; }
+	//var dist = this.position.scale(-1);
+	
+	var dist = otherBall.position().scale(-1).add(this.position());	
+	dist = dist.norm();
+	
+	if(dist <= 2*Constants.ballRadius){
+	//	console.log(dist);
+		return true;
+	}
+	else
+		return false;	
+};
+
+
+//POSITION?
+Ball.prototype.resolveBallImpactPosition = function(otherBall){
+	var resolutionLimit = 10;
+	//var vn = this.velocity.scale(1/this.velocity.norm());
+	//var k = vn.scale(Constants.ballRadius);
+	var k = this.distanceVectorToMoveFromMillis(Globals.timeSinceLastLoop * 200).scale(100);
+	for (var i = 0; i < resolutionLimit; i+=1){
+		if(this.isBallColliding(otherBall)){
+				this.getPosition().$sub(k);
+		}
+		else{
+			this.getPosition().$add(k);
+		}
+		k = k.scale(0.5);		
+	}	
+}
+
+
+
+//NYA HASTIGHETER EFTER KROCK
+Ball.prototype.ballCollision = function(otherBall){
+
+	//Normalen
+	var n = this.position().add(otherBall.position().scale(-1));
+	n = n.scale(1/n.norm());
+	
+	//normalkomponent
+	var dotten1 = this.velocity.dot(-n);
+	var vn1 = n.scale(-1).scale(dotten1);
+	
+	var dotten2 = otherBall.velocity.dot(n);
+	var vn2 = n.scale(dotten2);
+	
+	//tangentkomponent
+	var vt1 = this.velocity.add(vn1.scale(-1));
+	var vt2 = otherBall.velocity.add(vn2.scale(-1));
+	
+	//Nya hastigheter
+	var v1ny = vt1.add(vn2);
+	var v2ny = vt2.add(vn1);
+	
+	this.velocity = v1ny;
+	otherBall.velocity = v2ny;
+};
