@@ -20,13 +20,17 @@ function webGLStart() {
     var cushion2 = new Cushion([1, 0, 0, 1], 2);
     var cushion3 = new Cushion([1, 0, 0, 1], 3);
 
+    // Create pockets
+    var pocket0 = new Pocket(0);
+
 
     //Create arrays to keep track of balls and cushions
     var balls = [];
     var cushions = [];
+    var pockets = [];
 
     // Randomize a bunch of balls
-    for (var ballCount = 0; ballCount < 20; ballCount += 1) {
+    for (var ballCount = 0; ballCount < 16; ballCount += 1) {
         var randomBall = new Ball(
             {
                 x: ((Math.random()*2) - 1) * 0.2 * Constants.tableX,
@@ -54,16 +58,17 @@ function webGLStart() {
             logg[i][j] = false;
         }
     }
-	
+
 
     cushions.push(cushion0, cushion1, cushion2, cushion3);
+    pockets.push(new Pocket(0), new Pocket(1), new Pocket(2), new Pocket(3), new Pocket(4), new Pocket(5));
 
     var lightConfig = {
         enable: true,
         ambient: {
-            r: 0.2,
-            g: 0.2,
-            b: 0.2
+            r: 0.5,
+            g: 0.5,
+            b: 0.5
         },
         directional: {
             direction: {
@@ -128,6 +133,11 @@ function webGLStart() {
             // Add all the cushions to the scene
             for (var i = 0; i < cushions.length; i += 1) {
                 scene.add(cushions[i].cube);
+            }
+
+            // Add all the pockets to the scene
+            for (var pocketIndex = 0; pocketIndex < pockets.length; pocketIndex += 1) {
+                scene.add(pockets[pocketIndex].cylinder);
             }
 
             var currentTime = PhiloGL.Fx.animationTime();

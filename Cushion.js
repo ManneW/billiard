@@ -77,7 +77,7 @@ Cushion.prototype.resolveBallImpactPosition = function(ball) {
     var resolutionLimit = 10; //antal iterationer
     var isColliding = this.isBallColliding(ball);
     if (isColliding) {
-        var k = ball.distanceVectorToMoveFromMillis(Globals.timeSinceLastLoop * 200).scale(100);
+        var k = ball.distanceVectorToMoveFromMillis(Globals.timeSinceLastLoop * 400).scale(100);
         for (var i = 0; i < resolutionLimit; i += 1) {
             if (isColliding) {
                 ball.getPosition().$sub(k);
