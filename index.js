@@ -3,56 +3,24 @@ function webGLStart() {
         return document.getElementById(d);
     };
 
-    //Create pooltable
-    var plane = new PhiloGL.O3D.Plane({
-        type:'x,y',
-        xlen:Constants.tableX,
-        ylen:Constants.tableY,
-        nx:1,
-        ny:1,
-        offset:0,
-        colors:[0.5, 1, 0.7, 1]
-    });
 	
 	//Create TABLE
 	
 	var table = new Table();
+	//table.constructTable();
 
-    //Create edges
-    var cushion0 = new Cushion([1, 0, 0, 1], 0);
-    var cushion1 = new Cushion([1, 0, 0, 1], 1);
-    var cushion2 = new Cushion([1, 0, 0, 1], 2);
-    var cushion3 = new Cushion([1, 0, 0, 1], 3);
 
     // Create pockets
     var pocket0 = new Pocket(0);
 
 
     //Create arrays to keep track of balls and cushions
-    var balls = [];
-    var cushions = [];
+    var balls = table.balls;
+    var cushions = table.cushions;
     var pockets = [];
 
     // Randomize a bunch of balls
-    for (var ballCount = 0; ballCount < 16; ballCount += 1) {
-        var randomBall = new Ball(
-            {
-                x: ((Math.random()*2) - 1) * 0.2 * Constants.tableX,
-                y: ((Math.random()*2) - 1) * 0.2 * Constants.tableY
-            }
-        );
-        if (Math.random() > 0.5) {
-            randomBall.velocity = (new PhiloGL.Vec3(Math.random(), Math.random(), 0)).scale(1);
-        } else {
-            randomBall.velocity = (new PhiloGL.Vec3(0, 0, 0)).scale(1);
-        }
-
-        if (randomBall.offTable()) {
-            console.log("Start off table?");
-        } else {
-            balls.push(randomBall);
-        }
-    }
+    
 
     // Create logg array
     var logg = new Array(balls.length);
@@ -64,7 +32,6 @@ function webGLStart() {
     }
 
 
-    cushions.push(cushion0, cushion1, cushion2, cushion3);
     pockets.push(new Pocket(0), new Pocket(1), new Pocket(2), new Pocket(3), new Pocket(4), new Pocket(5));
 
     var lightConfig = {
@@ -129,7 +96,7 @@ function webGLStart() {
 
 
             // Add all the balls to the scene
-            scene.add(plane);
+            scene.add(table.plane);
             for (var i = 0; i < balls.length; i += 1) {
                 scene.add(balls[i].sphere);
             }
@@ -179,19 +146,27 @@ function webGLStart() {
 					
 					
                         if (balls[i].isBallColliding(balls[j])) {
-
+								
                             if (!logg[i][j] && !logg[j][i]) {
-
+								
                                 // Calculate collision
                                 balls[i].ballCollision(balls[j]);
-
-                                // Move the balls to correct positions
-                                balls[i].resolveBallImpactPosition(balls[j]);
+								
+								// Move the balls to correct positions
+								//balls[i].resolveBallImpactPosition(balls[j]);
+								
+								
+								
+								
+                                
 
                                 // Log that a collision has occurred
                                 logg[i][j] = true;
                                 logg[j][i] = true;
                             }
+							else{
+								balls[i].resolveBallImpactPositionAlt(balls[j]);
+							}
                         } else {
                             // Reset log entry for collision pair
                             logg[i][j] = false;

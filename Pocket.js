@@ -94,6 +94,11 @@ Pocket.prototype.position = function() {
     return this.cylinder.position;
 };
 
+/**
+ * Checks wether a ball is in the pocket
+ *
+ * @param ball
+ */
 Pocket.prototype.isBallInPocket = function (ball){
 	
 	var dist = (ball.position().sub(this.position())).norm();

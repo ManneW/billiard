@@ -8,7 +8,8 @@ var Ball = function(startPosition) {
 	//updatetime = the last instant where the ball was updated
     this.updateTime = PhiloGL.Fx.animationTime();
 	
-    this.velocity = new PhiloGL.Vec3(1, 0.5, 0);
+    this.velocity = new PhiloGL.Vec3(0, 0, 0);
+    this.oldvelocity = new PhiloGL.Vec3(0, 0, 0);
 	this.inGame = true;
 	
 	//Mesh for our billiardball
@@ -20,7 +21,8 @@ var Ball = function(startPosition) {
        
 	});
 	
-	//position of billiardball
+	//position of 
+	this.prevPosition =   new PhiloGL.Vec3(startPosition.x, startPosition.y, -3);
 	this.sphere.position =   new PhiloGL.Vec3(startPosition.x, startPosition.y, -3);
 	
 	//update sphere matrix - otherwise it won't move:( 
@@ -34,6 +36,7 @@ Ball.prototype.step = function() {
     var elapsedTime = PhiloGL.Fx.animationTime()-this.updateTime;
 
     //console.log('Elapsed: ' + elapsedTime);
+	
     var dist = this.velocity.scale(0.1 * elapsedTime);
     //console.log('Dist: ' + dist);
 	
@@ -48,8 +51,13 @@ Ball.prototype.step = function() {
  * @param distance A vector representing the distance
  */
 Ball.prototype.move = function(distance) {
+	this.prevPosition = new PhiloGL.Vec3(this.sphere.position.x, this.sphere.position.y, this.sphere.position.z);
 	PhiloGL.Vec3.$add(this.sphere.position, distance);
 };
+
+Ball.prototype.setColorRGBA = function(r,g,b,a){
+	this.sphere.colors = [r,g,b,a];
+}
 
 /**
  * Return the position of the ball
@@ -116,13 +124,66 @@ Ball.prototype.isBallColliding = function(otherBall){
  * Change the position of this ball to match the moment of collision with otherBall.
  *
  * @param otherBall The other ball to collide with
- */
+ // */
 Ball.prototype.resolveBallImpactPosition = function(otherBall) {
-    var dist = (otherBall.position().sub(this.position())).norm();
-
-    this.position().$add((this.velocity.scale(1.0/this.velocity.norm())).scale(2*Constants.ballRadius - dist));
+    if (otherBall.velocity.normSq() > this.velocity.normSq()) {
+		otherBall.resolveBallImpactPosition(this);
+	} else {	
+			//Old normal
+			var old = this.prevPosition.sub(otherBall.position());				
+			//Normalen
+			var n = this.position().sub(otherBall.position());
+			
+			//Checka för normalflips problem. Flytta olika antal avstånd enligt gamla hastigheten.
+			if(n.norm() > old.norm()){
+				var dist = (otherBall.position().sub(this.position())).norm();	
+				this.position().$sub((this.oldvelocity.scale(1.0/this.oldvelocity.norm())).scale(4*Constants.ballRadius - dist));
+			}
+			else{
+				var dist = (otherBall.position().sub(this.position())).norm();
+				this.position().$sub((this.oldvelocity.scale(1.0/this.oldvelocity.norm())).scale(2*Constants.ballRadius - dist));
+			}
+	}
 };
 
+
+/**
+ * Resolve impact position for a ball that already has collided with a another ball and gotten new velocities etc.
+ *
+ * @param otherBall The other ball to collide with
+ // */
+Ball.prototype.resolveBallImpactPositionAlt = function(otherBall) {
+	if (otherBall.velocity.normSq() > this.velocity.normSq()) {
+		otherBall.resolveBallImpactPositionAlt(this);
+	} else {
+			//Old normal
+			var old = this.prevPosition.sub(otherBall.position());				
+			//Normalen
+			var n = this.position().sub(otherBall.position());
+	
+			if(n.norm() > old.norm()){
+				var dist = (otherBall.position().sub(this.position())).norm();	
+				this.position().$add((this.velocity.scale(1.0/this.velocity.norm())).scale(Constants.ballRadius - dist));
+				otherBall.position().$add((this.velocity.scale(1.0/this.velocity.norm())).scale(Constants.ballRadius - dist));
+			}
+			else{
+				var dist = (otherBall.position().sub(this.position())).norm();
+				this.position().$add((this.velocity.scale(1.0/this.velocity.norm())).scale(Constants.ballRadius - dist));
+				otherBall.position().$add((this.velocity.scale(1.0/this.velocity.norm())).scale(Constants.ballRadius - dist));
+			}
+	}
+};
+
+//GAMLA VERSION (SÄKERHETSKOPIA)
+// Ball.prototype.resolveBallImpactPositionAlt = function(otherBall) {
+	// if (otherBall.velocity.normSq() > this.velocity.normSq()) {
+		// otherBall.resolveBallImpactPositionAlt(this);
+	// } else {
+		// var dist = (otherBall.position().sub(this.position())).norm();
+		
+		// this.position().$add((this.velocity.scale(1.0/this.velocity.norm())).scale(2*Constants.ballRadius - dist));
+	// }
+// };
 
 /**
  * Update velocities for collision with otherBall.
@@ -131,9 +192,26 @@ Ball.prototype.resolveBallImpactPosition = function(otherBall) {
  */
 Ball.prototype.ballCollision = function(otherBall){
 
+if (otherBall.velocity.normSq() > this.velocity.normSq()) {
+		otherBall.ballCollision(this);
+	} else {
+	//Old normal
+	var old = this.prevPosition.sub(otherBall.position());
+		
 	//Normalen
-	var n = this.position().add(otherBall.position().scale(-1));
+	var n = this.position().sub(otherBall.position());
+	
+	//Checka för normalflips problem
+	if(n.norm() > old.norm()){
+		console.log("HÄNDE NÅGOT SPECIELLT HÄR? ");
+		n.$scale(-1);
+	}
+	else{
+		//console.log(n.norm() + " --- " + old.norm() );
+	}
+			
 	n = n.scale(1.0/n.norm());
+	
 	
 	//normalkomponent
 	var dotten1 = this.velocity.dot(n.scale(-1));
@@ -150,8 +228,16 @@ Ball.prototype.ballCollision = function(otherBall){
 	var v1ny = vt1.add(vn2);
 	var v2ny = vt2.add(vn1);
 	
+	//Spara gamla hastigheter	
+	this.oldvelocity = new PhiloGL.Vec3(this.velocity.x, this.velocity.y, this.velocity.z);	
+	otherBall.oldvelocity = new PhiloGL.Vec3(otherBall.velocity.x, otherBall.velocity.y, otherBall.velocity.z);
+	
+	//SPara nya hastigheter
+	
 	this.velocity = v1ny;
 	otherBall.velocity = v2ny;
+		
+	}
 };
 
 /**
