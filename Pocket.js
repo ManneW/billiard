@@ -15,7 +15,7 @@ var Pocket = function (pocketIndex) {
     var pocketAttributes = createPocket(pocketIndex);
 
     this.cylinder.radius = pocketAttributes.radius;
-    this.cylinder.position = pocketAttributes.position;
+    this.cylinder.position = new PhiloGL.Vec3(pocketAttributes.position.x, pocketAttributes.position.y, pocketAttributes.position.z);
 
     this.cylinder.rotation = new PhiloGL.Vec3(Math.PI/2, 0, 0);
 
@@ -31,7 +31,7 @@ function createPocket(pocketIndex) {
     // 3 = lower right, 4 = lower middle, 5 = lower left
     var position;
     var height = 1;
-    var radius = 6;
+    var radius = Constants.pocketRadius;
 
     switch(pocketIndex) {
         case 0:
@@ -88,3 +88,16 @@ function createPocket(pocketIndex) {
         radius: radius
     };
 }
+
+
+Pocket.prototype.position = function() {
+    return this.cylinder.position;
+};
+
+Pocket.prototype.isBallInPocket = function (ball){
+	
+	var dist = (ball.position().sub(this.position())).norm();
+    return (dist < Constants.pocketRadius)
+}
+
+

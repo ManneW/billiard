@@ -4,7 +4,7 @@ function webGLStart() {
     };
 
     //Create pooltable
-    var table = new PhiloGL.O3D.Plane({
+    var plane = new PhiloGL.O3D.Plane({
         type:'x,y',
         xlen:Constants.tableX,
         ylen:Constants.tableY,
@@ -13,6 +13,10 @@ function webGLStart() {
         offset:0,
         colors:[0.5, 1, 0.7, 1]
     });
+	
+	//Create TABLE
+	
+	var table = new Table();
 
     //Create edges
     var cushion0 = new Cushion([1, 0, 0, 1], 0);
@@ -125,7 +129,7 @@ function webGLStart() {
 
 
             // Add all the balls to the scene
-            scene.add(table);
+            scene.add(plane);
             for (var i = 0; i < balls.length; i += 1) {
                 scene.add(balls[i].sphere);
             }
@@ -156,7 +160,24 @@ function webGLStart() {
 
                 // Iterate all balls
                 for (var i = 0; i < balls.length; i += 1) {
+					if (!balls[i].inGame) {
+						continue;
+					}
+					
+                    // Collision with edges
+                    for (var pocketIndex = 0; pocketIndex < pockets.length; pocketIndex += 1) {
+                        if(pockets[pocketIndex].isBallInPocket(balls[i])){
+							//console.log("Ball is out of game: " + i);
+							table.pocketBall(balls[i]);
+						}
+                    }
+					
                     for (j = i + 1; j < balls.length; j += 1) {
+						if (!balls[j].inGame) {
+							continue;
+						}
+					
+					
                         if (balls[i].isBallColliding(balls[j])) {
 
                             if (!logg[i][j] && !logg[j][i]) {

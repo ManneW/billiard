@@ -1,6 +1,6 @@
 //TREVLIGA VARIABLER
 const Constants = {
-    tableX: 287, tableY: 160, ballRadius: 3
+    tableX: 287, tableY: 160, ballRadius: 3, pocketRadius: 6
 };
 
 var Globals = {

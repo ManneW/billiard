@@ -9,6 +9,7 @@ var Ball = function(startPosition) {
     this.updateTime = PhiloGL.Fx.animationTime();
 	
     this.velocity = new PhiloGL.Vec3(1, 0.5, 0);
+	this.inGame = true;
 	
 	//Mesh for our billiardball
 	this.sphere = new PhiloGL.O3D.Sphere({
@@ -66,6 +67,14 @@ Ball.prototype.position = function() {
  */
 Ball.prototype.getPosition = function() {
     return this.sphere.position;
+};
+
+Ball.prototype.setPositionXYZ = function(x,y,z) {
+    this.sphere.position = new PhiloGL.Vec3(x,y,z);
+};
+
+Ball.prototype.setVelocityXYZ = function(x,y,z) {
+    this.velocity = new PhiloGL.Vec3(x,y,z);
 };
 
 /**
