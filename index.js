@@ -165,7 +165,7 @@ function webGLStart() {
                                 logg[j][i] = true;
                             }
 							else{
-								balls[i].resolveBallImpactPositionAlt(balls[j]);
+								//balls[i].resolveBallImpactPositionAlt(balls[j]);
 							}
                         } else {
                             // Reset log entry for collision pair

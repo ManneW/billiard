@@ -134,7 +134,7 @@ Ball.prototype.resolveBallImpactPosition = function(otherBall) {
 			//Normalen
 			var n = this.position().sub(otherBall.position());
 			
-			//Checka för normalflips problem. Flytta olika antal avstånd enligt gamla hastigheten.
+			//Checka för normalflips problem. Flytta olika antal avstånd enligt gamla hastigheten beroende på om this mittpunkt har hamnat förbi otherballs mittpunkt.
 			if(n.norm() > old.norm()){
 				var dist = (otherBall.position().sub(this.position())).norm();	
 				this.position().$sub((this.oldvelocity.scale(1.0/this.oldvelocity.norm())).scale(4*Constants.ballRadius - dist));
@@ -152,38 +152,17 @@ Ball.prototype.resolveBallImpactPosition = function(otherBall) {
  *
  * @param otherBall The other ball to collide with
  // */
+
+//GAMLA VERSION (SÄKERHETSKOPIA)
 Ball.prototype.resolveBallImpactPositionAlt = function(otherBall) {
 	if (otherBall.velocity.normSq() > this.velocity.normSq()) {
 		otherBall.resolveBallImpactPositionAlt(this);
 	} else {
-			//Old normal
-			var old = this.prevPosition.sub(otherBall.position());				
-			//Normalen
-			var n = this.position().sub(otherBall.position());
-	
-			if(n.norm() > old.norm()){
-				var dist = (otherBall.position().sub(this.position())).norm();	
-				this.position().$add((this.velocity.scale(1.0/this.velocity.norm())).scale(Constants.ballRadius - dist));
-				otherBall.position().$add((this.velocity.scale(1.0/this.velocity.norm())).scale(Constants.ballRadius - dist));
-			}
-			else{
-				var dist = (otherBall.position().sub(this.position())).norm();
-				this.position().$add((this.velocity.scale(1.0/this.velocity.norm())).scale(Constants.ballRadius - dist));
-				otherBall.position().$add((this.velocity.scale(1.0/this.velocity.norm())).scale(Constants.ballRadius - dist));
-			}
+		var dist = (otherBall.position().sub(this.position())).norm();
+		
+		this.position().$add((this.velocity.scale(1.0/this.velocity.norm())).scale(2*Constants.ballRadius - dist));
 	}
 };
-
-//GAMLA VERSION (SÄKERHETSKOPIA)
-// Ball.prototype.resolveBallImpactPositionAlt = function(otherBall) {
-	// if (otherBall.velocity.normSq() > this.velocity.normSq()) {
-		// otherBall.resolveBallImpactPositionAlt(this);
-	// } else {
-		// var dist = (otherBall.position().sub(this.position())).norm();
-		
-		// this.position().$add((this.velocity.scale(1.0/this.velocity.norm())).scale(2*Constants.ballRadius - dist));
-	// }
-// };
 
 /**
  * Update velocities for collision with otherBall.

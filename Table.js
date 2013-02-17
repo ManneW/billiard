@@ -54,7 +54,7 @@ Table.prototype.setupBalls = function(){
 		
 		for(var ballCount = 0; ballCount < rowCount + 1; ballCount += 1){
 			var ball = new Ball({
-				x: startposition[0] - rowCount*Math.sqrt(3.2)*Constants.ballRadius,
+				x: startposition[0] - rowCount*Math.sqrt(3.3)*Constants.ballRadius,
 				y: startpositionY + ballCount*2*Constants.ballRadius
 				}
 			);
