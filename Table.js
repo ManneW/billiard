@@ -46,7 +46,7 @@ Table.prototype.setupBalls = function(){
 	var cueball = new Ball({x: Constants.tableX/4, y:0} );
 	cueball.setColorRGBA(1,1,1,1);
 	//cueball.setVelocityXYZ(-2,0,0);
-    cueball.strikeBall(new PhiloGL.Vec3(-20, -30, 0), null);
+    cueball.strikeBall(new PhiloGL.Vec3(10, 15, 0), null);
 
 	this.balls.push(cueball);
 	var startposition = [-40,0];

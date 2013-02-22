@@ -20,7 +20,7 @@ const Constants = {
     g: privateConstants.g,
     ball: {
         radius: privateConstants.ball.radius,
-        tableNormal: new PhiloGL.Vec3(0, 0, privateConstants.ball.radius*0.01),
+        tableNormal: new PhiloGL.Vec3(0, 0, -privateConstants.ball.radius*0.01),
         mass: privateConstants.ball.mass,
         inertia: (2.0/5.0)*privateConstants.ball.mass*privateConstants.ball.radius*privateConstants.ball.radius*0.001,
         friction: {
@@ -36,3 +36,22 @@ var Globals = {
     previousLoop: { start: -1, end: -1 },
     timeSinceLastLoop: -1
 };
+
+
+function quatFromAngularVelocity(angularVelocity, timeBetweenFrames) {
+    var w = angularVelocity.scale(timeBetweenFrames);
+    var w_unit = w.unit();
+    var angle = w.norm();
+    var quat = [0, 0, 0, 0];
+
+    if (angle > 0.0) {
+        quat[0] = w_unit.x * Math.sin(angle/2.0);
+        quat[1] = w_unit.y * Math.sin(angle/2.0);
+        quat[2] = w_unit.z * Math.sin(angle/2.0);
+        quat[3] = Math.cos(angle/2.0);
+    } else {
+        // To prevent illegal stuff from happening
+    }
+
+    return quat;
+}

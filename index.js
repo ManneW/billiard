@@ -82,6 +82,12 @@ function webGLStart() {
                 var camera = this.camera;
                 camera.position.z += 10 * e.wheel;
                 camera.update();
+
+            },
+            onClick: function (e) {
+                e.stop();
+                console.log(e);
+                table.balls[0].strikeBall(new PhiloGL.Vec3(e.x, e.y, 0), null);
             }
         },
         onError:function (err) {
@@ -146,7 +152,7 @@ function webGLStart() {
                     for (var pocketIndex = 0; pocketIndex < pockets.length; pocketIndex += 1) {
                         if(pockets[pocketIndex].isBallInPocket(balls[i])){
 							//console.log("Ball is out of game: " + i);
-							table.pocketBall(balls[i]);
+							//table.pocketBall(balls[i]);
 						}
                     }
 					
