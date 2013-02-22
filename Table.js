@@ -19,7 +19,7 @@ var Table = function() {
 	this.balls = [];
 	this.setupBalls();
 	
-}
+};
 
 Table.prototype.constructTable = function(){
 	//Create.plane	
@@ -45,7 +45,9 @@ Table.prototype.constructTable = function(){
 Table.prototype.setupBalls = function(){	
 	var cueball = new Ball({x: Constants.tableX/4, y:0} );
 	cueball.setColorRGBA(1,1,1,1);
-	cueball.setVelocityXYZ(-2,0,0);
+	//cueball.setVelocityXYZ(-2,0,0);
+    cueball.strikeBall(new PhiloGL.Vec3(-20, -30, 0), null);
+
 	this.balls.push(cueball);
 	var startposition = [-40,0];
 	for(var rowCount = 0 ; rowCount < 5; rowCount += 1){
@@ -58,7 +60,7 @@ Table.prototype.setupBalls = function(){
 				y: startpositionY + ballCount*2*Constants.ballRadius
 				}
 			);
-			this.balls.push(ball);
+			//this.balls.push(ball);
 		}
 	}
 };
@@ -77,4 +79,4 @@ Table.prototype.pocketBall = function(ball){
 	ball.setPositionXYZ(100 - 2.5*this.pocketedBallsCount*Constants.ballRadius, - Constants.tableY/2 - 20, 0);
 	this.pocketedBallsCount += 1;	
 
-}
+};

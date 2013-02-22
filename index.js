@@ -65,6 +65,17 @@ function webGLStart() {
                 x:0, y:0, z:-300.0
             }
         },
+        textures: {
+            src: ['ball.jpg'],
+            parameters: [{
+                name: 'TEXTURE_MAG_FILTER',
+                value: 'LINEAR'
+            }, {
+                name: 'TEXTURE_MIN_FILTER',
+                value: 'LINEAR_MIPMAP_NEAREST',
+                generateMipmap: true
+            }]
+        },
         events:{
             onMouseWheel:function (e) {
                 e.stop();
@@ -163,6 +174,14 @@ function webGLStart() {
                                 // Log that a collision has occurred
                                 logg[i][j] = true;
                                 logg[j][i] = true;
+
+//                                for (var tempI = 0; tempI < logg[i].length; tempI+=1) {
+//                                    logg[i][tempI] = true;
+//                                }
+//
+//                                for (var tempJ = 0; tempJ < logg[j].length; tempJ+=1) {
+//                                    logg[j][tempJ] = true;
+//                                }
                             }
 							else{
 								//balls[i].resolveBallImpactPositionAlt(balls[j]);
