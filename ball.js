@@ -31,7 +31,7 @@ var Ball = function(startPosition) {
 	this.sphere.position =   new PhiloGL.Vec3(startPosition.x, startPosition.y, -3);
 	
 	//update sphere matrix - otherwise it won't move:( 
-	this.sphere.update();
+	this.update();
 };
 
 Ball.prototype.strikeBall = function(force, hitpoint) {
@@ -68,33 +68,10 @@ Ball.prototype.step = function() {
         this.angularVelocity.$add(deltaW);
         this.velocity = PhiloGL.Vec3.cross(this.angularVelocity, Constants.ball.tableNormal).scale(1.0/Constants.ball.tableNormal.norm());
 
-
-        //this.rotateUsingAngularVelocity(this.angularVelocity, elapsedTimeInSeconds);
-        //var newAngle = this.eulerRotationalAngleFromAngularVelocity(this.angularVelocity, elapsedTimeInSeconds);
-        //var originalAngle = this.angularVelocity.scale(elapsedTimeInSeconds);
-
-
-        //var testQuat = quatFromAngularVelocity(new PhiloGL.Vec3(Math.PI/2, 0, 0), 1);
-
-        //this.rotateUsingAngularVelocity(this.angularVelocity, elapsedTimeInSeconds);
-
         var dist = this.velocity.scale(0.1 * elapsedTime);
-        //this.move(dist);
-//
-//        var matrix = this.sphere.matrix,
-//            pos = this.sphere.position,
-//            rot = this.sphere.rotation,
-//            scale = this.sphere.scale;
-//
-//        matrix.id();
-        //matrix.id();
         PhiloGL.Vec3.$add(this.sphere.position, dist);
-//        matrix.$translate(pos.x, pos.y, pos.z);
 
         this.rotateW(this.angularVelocity, elapsedTimeInSeconds);
-        //matrix.$rotateXYZ(rot.x, rot.y, rot.z);
-//        matrix.$scale(scale.x, scale.y, scale.z);
-        //this.sphere.update();
     }
 
     this.update();
@@ -118,30 +95,9 @@ Ball.prototype.update = function () {
 
 
 Ball.prototype.rotateW = function(w, dt) {
-//    var quat = quatFromAngularVelocity(w, dt);
-//
-//    var qw = quat[3], qx = quat[0], qy = quat[1], qz = quat[2];
-//    var n = 1.0/Math.sqrt(qx*qx+qy*qy+qz*qz+qw*qw);
-//    qx *= n;
-//    qy *= n;
-//    qz *= n;
-//    qw *= n;
-//
-//    var w2 = w.scale(dt);
-//    var rotation = new PhiloGL.Mat4(
-//        1.0 - 2.0*qy*qy - 2.0*qz*qz, 2.0*qx*qy - 2.0*qz*qw, 2.0*qx*qz + 2.0*qy*qw, 0.0,
-//        2.0*qx*qy + 2.0*qz*qw, 1.0 - 2.0*qx*qx - 2.0*qz*qz, 2.0*qy*qz - 2.0*qx*qw, 0.0,
-//        2.0*qx*qz - 2.0*qy*qw, 2.0*qy*qz + 2.0*qx*qw, 1.0 - 2.0*qx*qx - 2.0*qy*qy, 0.0,
-//        0.0, 0.0, 0.0, 1.0
-//    );
-
     var rotation = new PhiloGL.Mat4();
-
     rotation.id();
-    //this.totalRotation.$mulMat4(rotation.rotateAxis(dt*w.norm()*(180/Math.PI), w.unit()));
     this.totalRotation = rotation.rotateAxis(dt*w.norm()*(180/Math.PI), w.unit()).mulMat4(this.totalRotation);
-    //this.totalRotation.$mulMat4(rotation);
-   // this.sphere.matrix.$mulMat4(this.totalRotation);
 };
 
 /**
@@ -152,54 +108,6 @@ Ball.prototype.rotateW = function(w, dt) {
 Ball.prototype.move = function(distance) {
 	this.prevPosition = new PhiloGL.Vec3(this.sphere.position.x, this.sphere.position.y, this.sphere.position.z);
 	PhiloGL.Vec3.$add(this.sphere.position, distance);
-};
-
-Ball.prototype.rotateUsingAngularVelocity = function(angularVelocity, elapsedTimeInSeconds) {
-    var eulerAngle = this.eulerRotationalAngleFromAngularVelocity(angularVelocity, elapsedTimeInSeconds);
-    this.rotate(eulerAngle);
-};
-
-Ball.prototype.eulerRotationalAngleFromAngularVelocity = function(angularVelocity, elapsedTimeInSeconds) {
-    var quat = quatFromAngularVelocity(angularVelocity, elapsedTimeInSeconds);
-
-    var quatNorm = quat[0]^2 + quat[1]^2 + quat[2]^2 + quat[3]^2;
-    var s = 1;
-    if (quatNorm > 0.0) {
-        s = 2/quatNorm;
-    } else {
-        s = 0.0;
-    }
-
-//    quat[0] = quat[0]*s;
-//    quat[1] = quat[1]*s;
-//    quat[2] = quat[2]*s;
-//    quat[3] = quat[3]*s;
-
-//    var angle_x = Math.atan2((quat[0] * quat[2]  + quat[1] * quat[3]), -(quat[1] * quat[2] - quat[0] * quat[3]));
-//    var angle_y = Math.acos(-(quat[0] * quat[0]) - (quat[1] * quat[1]) + (quat[2] * quat[2]) + (quat[3] * quat[3]));
-//    var angle_z = Math.atan2((quat[0] * quat[2]  - quat[1] * quat[3]), (quat[1] * quat[2] + quat[0] * quat[3]));
-
-    var q0 = quat[0], q1 = quat[1], q2 = quat[2], q3 = quat[3];
-
-    var angle_x = Math.atan2( 2*(q0*q1 + q2*q3), 1-2*(q1*q1+q2*q2));
-    var angle_y = Math.asin(2*(q0*q2 - q3*q1));
-    var angle_z = Math.atan2( 2*(q0*q3 + q1*q2), 1-2*(q2*q2+q3*q3));
-
-
-    var angle = new PhiloGL.Vec3(
-        angle_x,
-        angle_y,
-        angle_z
-    );
-
-    return angle;
-};
-
-Ball.prototype.rotate = function(angle) {
-    this.rotation.$add(angle);
-    //this.sphere.rotation.set(Math.PI/2, 0, 0);
-    this.sphere.rotation.set(this.rotation.x, this.rotation.y, this.rotation.z);
-    this.sphere.update();
 };
 
 Ball.prototype.setColorRGBA = function(r,g,b,a){
@@ -398,7 +306,13 @@ Ball.prototype.offTable = function() {
             (this.position().y < -Constants.tableY / 2.0 || this.position().y > Constants.tableY / 2.0));
 };
 
-
+/**
+ * Recalculate velocity changes
+ *
+ * @param currentBall
+ * @param otherBall
+ * @return {*}
+ */
 function calculateTempVelocity(currentBall,otherBall) {
     if (otherBall.velocity.normSq() > currentBall.velocity.normSq()) {
         return calculateTempVelocity(otherBall,currentBall);
