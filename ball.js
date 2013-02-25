@@ -123,7 +123,8 @@ Ball.prototype.rotateW = function(w, dt) {
     var rotation = new PhiloGL.Mat4();
 
     rotation.id();
-    this.totalRotation.$mulMat4(rotation.rotateAxis(dt*w.norm()*(180/Math.PI), w.unit()));
+    //this.totalRotation.$mulMat4(rotation.rotateAxis(dt*w.norm()*(180/Math.PI), w.unit()));
+    this.totalRotation = rotation.rotateAxis(dt*w.norm()*(180/Math.PI), w.unit()).mulMat4(this.totalRotation);
     //this.totalRotation.$mulMat4(rotation);
     this.sphere.matrix.$mulMat4(this.totalRotation);
 };
@@ -239,7 +240,7 @@ Ball.prototype.edgeCollision = function(cushion){
     var w2 = Constants.ball.tableNormal.cross(v2);
     w2 = w2.scale(1.0 / Constants.ball.tableNormal.norm());
 
-    this.totalRotation.id();
+    //this.totalRotation.id();
 
     this.angularVelocity = w2;
 	this.velocity = v2;
@@ -357,8 +358,8 @@ if (otherBall.velocity.normSq() > this.velocity.normSq()) {
     var w2ny = Constants.ball.tableNormal.cross(v2ny);
     w2ny = w2ny.scale(1.0 / Constants.ball.tableNormal.norm());
 
-    this.totalRotation.id();
-    otherBall.totalRotation.id();
+    //this.totalRotation.id();
+    //otherBall.totalRotation.id();
 
 	this.velocity = v1ny;
     this.angularVelocity = w1ny;

@@ -5,7 +5,7 @@ const privateConstants = {
         radius: 3,
         mass: 0.5,
         friction: {
-            rolling: 0.05,
+            rolling: 0.1,
             sliding: 0.2
         }
     }

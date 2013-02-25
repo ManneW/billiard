@@ -46,7 +46,7 @@ Table.prototype.setupBalls = function(){
 	var cueball = new Ball({x: Constants.tableX/4, y:0} );
 	cueball.setColorRGBA(1,1,1,1);
 	//cueball.setVelocityXYZ(-2,0,0);
-    cueball.strikeBall(new PhiloGL.Vec3(10, 15, 0), null);
+    cueball.strikeBall(new PhiloGL.Vec3(-50, 0, 0), null);
 
 	this.balls.push(cueball);
 	var startposition = [-40,0];
@@ -60,7 +60,7 @@ Table.prototype.setupBalls = function(){
 				y: startpositionY + ballCount*2*Constants.ballRadius
 				}
 			);
-			//this.balls.push(ball);
+			this.balls.push(ball);
 		}
 	}
 };

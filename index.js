@@ -140,6 +140,12 @@ function webGLStart() {
             function draw() {
                 currentTime = PhiloGL.Fx.animationTime();
                 Globals.timeSinceLastLoop = currentTime - Globals.previousLoop.end;
+                if (Globals.timeSinceLastLoop < (1000/60)) {
+                    PhiloGL.Fx.requestAnimationFrame(draw);
+                    //console.log("Too fast");
+                    return;
+                }
+
                 gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
                 // Iterate all balls
