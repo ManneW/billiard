@@ -46,7 +46,7 @@ Table.prototype.setupBalls = function(){
 	var cueball = new Ball({x: Constants.tableX/4, y:0} );
 	cueball.setColorRGBA(1,1,1,1);
 	//cueball.setVelocityXYZ(-2,0,0);
-    cueball.strikeBall(new PhiloGL.Vec3(-50, 0, 0), null);
+    cueball.strikeBall(new PhiloGL.Vec3(-70, 0, 0), null);
 
 	this.balls.push(cueball);
 	var startposition = [-40,0];
@@ -74,7 +74,8 @@ Table.prototype.setupBalls = function(){
  */
 Table.prototype.pocketBall = function(ball){
 	ball.inGame = false;
-	ball.setVelocityXYZ(0,0,0);
+
+	ball.setAngularVelocityXYZ(0,0,0);
 	
 	ball.setPositionXYZ(100 - 2.5*this.pocketedBallsCount*Constants.ballRadius, - Constants.tableY/2 - 20, 0);
 	this.pocketedBallsCount += 1;	

@@ -80,25 +80,40 @@ Ball.prototype.step = function() {
 
         var dist = this.velocity.scale(0.1 * elapsedTime);
         //this.move(dist);
-
-        var matrix = this.sphere.matrix,
-            pos = this.sphere.position,
-            rot = this.sphere.rotation,
-            scale = this.sphere.scale;
-
-        matrix.id();
+//
+//        var matrix = this.sphere.matrix,
+//            pos = this.sphere.position,
+//            rot = this.sphere.rotation,
+//            scale = this.sphere.scale;
+//
+//        matrix.id();
         //matrix.id();
         PhiloGL.Vec3.$add(this.sphere.position, dist);
-        matrix.$translate(pos.x, pos.y, pos.z);
+//        matrix.$translate(pos.x, pos.y, pos.z);
 
         this.rotateW(this.angularVelocity, elapsedTimeInSeconds);
         //matrix.$rotateXYZ(rot.x, rot.y, rot.z);
-        matrix.$scale(scale.x, scale.y, scale.z);
+//        matrix.$scale(scale.x, scale.y, scale.z);
         //this.sphere.update();
-
     }
 
+    this.update();
     this.updateTime = PhiloGL.Fx.animationTime();
+};
+
+/**
+ * Our own update
+ */
+Ball.prototype.update = function () {
+    var matrix = this.sphere.matrix,
+        pos = this.sphere.position,
+        rot = this.sphere.rotation,
+        scale = this.sphere.scale;
+
+    matrix.id();
+    matrix.$translate(pos.x, pos.y, pos.z);
+    matrix.$mulMat4(this.totalRotation);
+    matrix.$scale(scale.x, scale.y, scale.z);
 };
 
 
@@ -126,7 +141,7 @@ Ball.prototype.rotateW = function(w, dt) {
     //this.totalRotation.$mulMat4(rotation.rotateAxis(dt*w.norm()*(180/Math.PI), w.unit()));
     this.totalRotation = rotation.rotateAxis(dt*w.norm()*(180/Math.PI), w.unit()).mulMat4(this.totalRotation);
     //this.totalRotation.$mulMat4(rotation);
-    this.sphere.matrix.$mulMat4(this.totalRotation);
+   // this.sphere.matrix.$mulMat4(this.totalRotation);
 };
 
 /**
@@ -215,6 +230,10 @@ Ball.prototype.setPositionXYZ = function(x,y,z) {
 
 Ball.prototype.setVelocityXYZ = function(x,y,z) {
     this.velocity = new PhiloGL.Vec3(x,y,z);
+};
+
+Ball.prototype.setAngularVelocityXYZ = function(x,y,z) {
+    this.angularVelocity = new PhiloGL.Vec3(x,y,z);
 };
 
 /**
@@ -378,3 +397,70 @@ Ball.prototype.offTable = function() {
     return ((this.position().x < -Constants.tableX / 2.0 || this.position().x > Constants.tableX / 2.0) ||
             (this.position().y < -Constants.tableY / 2.0 || this.position().y > Constants.tableY / 2.0));
 };
+
+
+function calculateTempVelocity(currentBall,otherBall) {
+    if (otherBall.velocity.normSq() > currentBall.velocity.normSq()) {
+        return calculateTempVelocity(otherBall,currentBall);
+    } else {
+        //Old normal
+        var old = currentBall.prevPosition.sub(otherBall.position());
+
+        //New
+        var new_n = currentBall.prevPosition.sub(currentBall.position());
+
+        //Normalen
+        var n = currentBall.position().sub(otherBall.position());
+
+        //Checka för normalflips problem
+        if(new_n.norm() > old.norm()){
+            console.log("HÄNDE NÅGOT SPECIELLT HÄR? ");
+            n.$scale(-1);
+        }
+        else{
+            //console.log(n.norm() + " --- " + old.norm() );
+        }
+
+        //normaliserar
+        n = n.scale(1.0/n.norm());
+
+        //normalkomponent
+        var dotten1 = currentBall.velocity.dot(n.scale(-1));
+        var vn1 = n.scale(-1).scale(dotten1);
+
+        var dotten2 = otherBall.velocity.dot(n);
+        var vn2 = n.scale(dotten2);
+
+        //tangentkomponent
+        var vt1 = currentBall.velocity.sub(vn1);
+        var vt2 = otherBall.velocity.sub(vn2);
+
+        //Nya hastigheter
+        var v1ny = vt1.add(vn2);
+        var v2ny = vt2.add(vn1);
+
+        //Nya hastigheter
+        var delta_velocity_A = currentBall.velocity.sub(v1ny);
+        var delta_velocity_B = otherBall.velocity.sub(v2ny);
+
+        // Nya vinkelhastigheter
+        var w1ny = Constants.ball.tableNormal.cross(v1ny);
+        w1ny = w1ny.scale(1.0 / Constants.ball.tableNormal.norm());
+
+        var w2ny = Constants.ball.tableNormal.cross(v2ny);
+        w2ny = w2ny.scale(1.0 / Constants.ball.tableNormal.norm());
+
+        var delta_w_A = currentBall.angularVelocity.sub(w1ny);
+        var delta_w_B = otherBall.angularVelocity.sub(w2ny);
+
+
+        return {
+            ballA: currentBall,
+            ballB: otherBall,
+            delta_vA: delta_velocity_A,
+            delta_vB: delta_velocity_B,
+            delta_wA: delta_w_A,
+            delta_wB: delta_w_B
+        };
+    }
+}

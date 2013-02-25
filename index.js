@@ -19,9 +19,6 @@ function webGLStart() {
     var cushions = table.cushions;
     var pockets = [];
 
-    // Randomize a bunch of balls
-    
-
     // Create logg array
     var logg = new Array(balls.length);
     for (var i = 0; i < logg.length; i += 1) {
@@ -30,7 +27,6 @@ function webGLStart() {
             logg[i][j] = false;
         }
     }
-
 
     pockets.push(new Pocket(0), new Pocket(1), new Pocket(2), new Pocket(3), new Pocket(4), new Pocket(5));
 
@@ -145,70 +141,62 @@ function webGLStart() {
                     //console.log("Too fast");
                     return;
                 }
-
                 gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+				
+				var temp_array = new Array();
 
-                // Iterate all balls
+				// Iterate all balls
                 for (var i = 0; i < balls.length; i += 1) {
 					if (!balls[i].inGame) {
 						continue;
 					}
 					
-                    // Collision with edges
+					// Collision with pockets
                     for (var pocketIndex = 0; pocketIndex < pockets.length; pocketIndex += 1) {
                         if(pockets[pocketIndex].isBallInPocket(balls[i])){
 							//console.log("Ball is out of game: " + i);
-							//table.pocketBall(balls[i]);
+							table.pocketBall(balls[i]);
 						}
                     }
 					
-                    for (j = i + 1; j < balls.length; j += 1) {
-						if (!balls[j].inGame) {
+                    for (var j = 0; j < balls.length; j += 1) {
+						if (!balls[j].inGame ) {
 							continue;
 						}
-					
-					
-                        if (balls[i].isBallColliding(balls[j])) {
-								
-                            if (!logg[i][j] && !logg[j][i]) {
-								
-                                // Calculate collision
-                                balls[i].ballCollision(balls[j]);
-								
-								// Move the balls to correct positions
-								//balls[i].resolveBallImpactPosition(balls[j]);
-								
-								
-								
-								
-                                
-
-                                // Log that a collision has occurred
-                                logg[i][j] = true;
-                                logg[j][i] = true;
-
-//                                for (var tempI = 0; tempI < logg[i].length; tempI+=1) {
-//                                    logg[i][tempI] = true;
-//                                }
-//
-//                                for (var tempJ = 0; tempJ < logg[j].length; tempJ+=1) {
-//                                    logg[j][tempJ] = true;
-//                                }
-                            }
-							else{
-								//balls[i].resolveBallImpactPositionAlt(balls[j]);
+						
+						if (i != j) {
+							//Collision with other balls
+							if (balls[i].isBallColliding(balls[j])) {
+								if (!logg[i][j] && !logg[j][i]) {
+									var collision = calculateTempVelocity(balls[i],balls[j]);
+									temp_array.push(collision);
+									logg[i][j] = true;
+									logg[j][i] = true;
+								}
+							} else {
+								logg[i][j] = false;
+								logg[j][i] = false;
 							}
-                        } else {
-                            // Reset log entry for collision pair
-                            logg[i][j] = false;
-                            logg[j][i] = false;
-                        }
+						}
                     }
-
-                    // Collision with edges
-                    for (var cushionIndex = 0; cushionIndex < cushions.length; cushionIndex += 1) {
-                        cushions[cushionIndex].resolveCollision(balls[i]);
-                    }
+                }
+				
+				for (var c = 0; c < temp_array.length; c += 1) {
+					var collision = temp_array[c];
+					//collision.ballA.velocity.$sub(collision.delta_vA);
+					//collision.ballB.velocity.$sub(collision.delta_vB);
+                    collision.ballA.angularVelocity.$sub(collision.delta_wA);
+                    collision.ballB.angularVelocity.$sub(collision.delta_wB);
+				}
+				
+				for (i = 0; i < balls.length; i += 1) {
+					if (!balls[i].inGame) {
+						continue;
+					}
+					// Collision with edges
+					for (var cushionIndex = 0; cushionIndex < cushions.length; cushionIndex += 1) {
+						cushions[cushionIndex].resolveCollision(balls[i]);
+					}
                 }
 
                 // Update position and velocities for all balls
