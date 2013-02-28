@@ -18,6 +18,10 @@ function webGLStart() {
     var balls = table.balls;
     var cushions = table.cushions;
     var pockets = table.pockets;
+	var cue = table.cue;
+
+    // Randomize a bunch of balls
+    
 
     // Create logg array
     var logg = new Array(balls.length);
@@ -83,7 +87,10 @@ function webGLStart() {
             onClick: function (e) {
                 e.stop();
                 console.log(e);
-                table.balls[0].strikeBall(new PhiloGL.Vec3(e.x, e.y, 0), null);
+                //table.balls[0].strikeBall(90, cue, null);
+				table.balls[0].strikeBall(new PhiloGL.Vec3(e.x, e.y, 0), null);
+				console.log("ST���T");
+				//scene.remove(cue.cylinder);
             }
         },
         onError:function (err) {
@@ -123,6 +130,8 @@ function webGLStart() {
             for (var pocketIndex = 0; pocketIndex < pockets.length; pocketIndex += 1) {
                 scene.add(pockets[pocketIndex].cylinder);
             }
+			
+			scene.add(cue.cylinder);
 
             var currentTime = PhiloGL.Fx.animationTime();
             Globals.previousLoop.start = currentTime;
@@ -195,10 +204,20 @@ function webGLStart() {
 					}
                 }
 
-                // Update position and velocities for all balls
-                for (i = 0; i < balls.length; i += 1) {
-                    //balls[i].step(Globals.timeSinceLastLoop);
+                //CUE GOJS
+                if(!table.checkForMovingBalls()){
+                    //console.log("---");
+                    //scene.add(cue.cylinder); //FUNKAR
+                    cue.followCueball(balls[0]);
                 }
+                else{	//console.log("N�T R�R SIG");
+                    //scene.remove(cue.cylinder); //FUNKAR EJ, VARF�R??
+                    cue.cylinder.position.x =0;
+                    cue.cylinder.position.y =0;
+                    cue.cylinder.position.z =20;
+                    cue.cylinder.update();
+                }
+
                 Globals.previousLoop.end = PhiloGL.Fx.animationTime();
 
 

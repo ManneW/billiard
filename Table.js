@@ -25,6 +25,18 @@ var Table = function() {
     this.collisions = [];
     this.insides = [];
 
+	
+	//Create Cue
+	this.cue = new Cue(this.balls[0].position());	
+	
+	//Startshot	
+	this.balls[0].strikeBallWithCue(100, this.cue, null);
+	//this.cue.rotateT(this.balls[0]);
+	
+	//Create players
+	player1 = new Player(1);
+	player2 = new Player(2);
+	
 };
 
 Table.prototype.constructTable = function(){
@@ -49,23 +61,39 @@ Table.prototype.constructTable = function(){
 };
 
 Table.prototype.setupBalls = function(){	
-	var cueball = new Ball({x: Constants.tableX/4, y: 2.5*Constants.ballRadius} );
+	var cueball = new Ball({x: Constants.tableX/4, y:0}, [1,1,1,1], 0 );
 	cueball.setColorRGBA(1,1,1,1);
-    cueball.strikeBall(new PhiloGL.Vec3(-110, 0, 0), null);
+	//cueball.setVelocityXYZ(-2,0,0);
+    //cueball.strikeBall(new PhiloGL.Vec3(-50, 0, 0), null);
 
 	this.balls.push(cueball);
 	var startposition = [-40,6*0.5*Constants.ballRadius];
+	ballnr = 1;
+	var color;
+	
 	for(var rowCount = 0 ; rowCount < 5; rowCount += 1){
 		
 		var startpositionY = startposition[1] -(rowCount+1)*Constants.ballRadius + 0.5*Constants.ballRadius;
 		
 		for(var ballCount = 0; ballCount < rowCount + 1; ballCount += 1){
+			if	(ballnr == 8){
+				color = [0,0,0,1]
+			}
+			else if (ballnr%2 == 0){
+				color = [1,0,0,1];
+			}
+			else{
+				color = [0,0,1,1];
+			}
 			var ball = new Ball({
 				x: startposition[0] - rowCount*Math.sqrt(3.3)*Constants.ballRadius,
 				y: startpositionY + ballCount*2*Constants.ballRadius
-				}
+				},
+				 color,
+				3
 			);
 			this.balls.push(ball);
+			ballnr += 1;
 		}
 	}
 };
@@ -79,7 +107,6 @@ Table.prototype.setupBalls = function(){
  */
 Table.prototype.pocketBall = function(ball){
 	ball.inGame = false;
-
 	ball.setAngularVelocityXYZ(0,0,0);
 	
 	ball.setPositionXYZ(100 - 2.5*this.pocketedBallsCount*Constants.ballRadius, - Constants.tableY/2 - 20, 0);
@@ -87,6 +114,14 @@ Table.prototype.pocketBall = function(ball){
 
 };
 
+Table.prototype.checkForMovingBalls = function(){
+	for (var i = 0; i < this.balls.length; i += 1){
+			if(this.balls[i].velocity.norm() != 0){
+				return true;
+			}
+	}
+	return false;
+};
 
 Table.prototype.collideBalls = function () {
 

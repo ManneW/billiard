@@ -4,39 +4,67 @@
  * @param startPosition
  * @constructor
  */
-var Ball = function(startPosition) {
-	//updatetime = the last instant where the ball was updated
+var Ball = function(startPosition, color, id) {
+    this.id = id;
+
+    //updatetime = the last instant where the ball was updated
     this.updateTime = PhiloGL.Fx.animationTime();
-	
+
     this.velocity = new PhiloGL.Vec3(0, 0, 0);
     this.angularVelocity = new PhiloGL.Vec3(0, 0, 0);
     this.oldvelocity = new PhiloGL.Vec3(0, 0, 0);
-	this.inGame = true;
+    this.inGame = true;
     this.rotation = new PhiloGL.Vec3(0,0,0);
     this.totalRotation = new PhiloGL.Mat4();
     this.totalRotation.id();
-	
-	//Mesh for our billiardball
-	this.sphere = new PhiloGL.O3D.Sphere({
-		nlat: 30,
-		nlong: 30,
-		radius: Constants.ballRadius,
+
+    //Mesh for our billiardball
+    this.sphere = new PhiloGL.O3D.Sphere({
+        nlat: 30,
+        nlong: 30,
+        radius: Constants.ballRadius,
         textures: "ball.jpg",
-		colors: [Math.random(), Math.random(), Math.random(), 1]
-       
-	});
-	
-	//position of 
-	this.prevPosition =   new PhiloGL.Vec3(startPosition.x, startPosition.y, -3);
-	this.sphere.position =   new PhiloGL.Vec3(startPosition.x, startPosition.y, -3);
-	
-	//update sphere matrix - otherwise it won't move:( 
-	this.update();
+        colors: color
+
+    });
+
+    //position of
+    this.prevPosition =   new PhiloGL.Vec3(startPosition.x, startPosition.y, -3);
+    this.sphere.position =   new PhiloGL.Vec3(startPosition.x, startPosition.y, -3);
+
+    //update sphere matrix - otherwise it won't move:(
+    this.update();
 };
 
 Ball.prototype.strikeBall = function(force, hitpoint) {
     if (!this.inGame) {
         return;
+    }
+
+    var a = force.scale(1.0 / Constants.ball.mass);
+    var v = a.scale(0.01);
+    var w = Constants.ball.tableNormal.cross(v);
+    w = w.scale(1.0 / Constants.ball.tableNormal.norm());
+
+    this.velocity = v;
+    this.angularVelocity = w;
+};
+
+Ball.prototype.strikeBallWithCue = function(factor, cue, hitpoint) {
+    if (!this.inGame) {
+        return;
+    }
+    console.log("STRIKE");
+    if(cue == null){
+        console.log("WHOOO");
+        //force = new PhiloGL.Vec3(-10,0,0)
+    }
+    else{
+        console.log("YEEEEAH");
+        var cylinderPosition = cue.cylinder.position;
+        var direction = this.position().sub(cue.cylinder.position);
+        direction.$scale(1/direction.norm());
+        var force = direction.scale(factor);
     }
 
     var a = force.scale(1.0 / Constants.ball.mass);

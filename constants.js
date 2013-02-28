@@ -29,7 +29,9 @@ const Constants = {
         },
         rollingFrictionalForceMagnitude: privateConstants.ball.friction.rolling * privateConstants.g * privateConstants.ball.mass * privateConstants.ball.radius/100
 
-    }
+    },
+	
+	cueLength: 150
 };
 
 var Globals = {
