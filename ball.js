@@ -51,7 +51,15 @@ Ball.prototype.strikeBall = function(force, hitpoint) {
 /**
  * Calculate distance and move the ball.
  */
-Ball.prototype.step = function() {
+Ball.prototype.step = function(timeStep) {
+    var elapsedTime = PhiloGL.Fx.animationTime()-this.updateTime;
+    var factor = 1;
+
+    if (timeStep != undefined && timeStep < 0) {
+        //elapsedTime = timeStep;
+        factor = -1;
+    }
+
 
     // Resting ball condition
     // TODO: Check if tweak is possible?
@@ -59,14 +67,19 @@ Ball.prototype.step = function() {
         this.angularVelocity = new PhiloGL.Vec3(0,0,0);
         this.velocity = new PhiloGL.Vec3(0,0,0);
     } else {
-        var elapsedTime = PhiloGL.Fx.animationTime()-this.updateTime;
-        var elapsedTimeInSeconds = elapsedTime / 1000.0;
+        //var elapsedTime = PhiloGL.Fx.animationTime()-this.updateTime;
+        var elapsedTimeInSeconds = factor * Globals.timeSinceLastLoop / 1000.0;//1.0/60.0;//elapsedTime / 1000.0;
+        elapsedTime = elapsedTimeInSeconds * 1000;
 
-        var rollingFrictionalForce = this.velocity.scale(-1.0 * Constants.ball.rollingFrictionalForceMagnitude / this.velocity.norm());
+//        var rollingFrictionalForce = this.velocity.scale(-1.0 * Constants.ball.rollingFrictionalForceMagnitude / this.velocity.norm());
+//
+//        var deltaW = PhiloGL.Vec3.cross(Constants.ball.tableNormal, rollingFrictionalForce).scale(elapsedTimeInSeconds/Constants.ball.inertia);
+//        this.angularVelocity.$add(deltaW);
+//        this.velocity = PhiloGL.Vec3.cross(this.angularVelocity, Constants.ball.tableNormal).scale(1.0/Constants.ball.tableNormal.norm());
 
-        var deltaW = PhiloGL.Vec3.cross(Constants.ball.tableNormal, rollingFrictionalForce).scale(elapsedTimeInSeconds/Constants.ball.inertia);
-        this.angularVelocity.$add(deltaW);
-        this.velocity = PhiloGL.Vec3.cross(this.angularVelocity, Constants.ball.tableNormal).scale(1.0/Constants.ball.tableNormal.norm());
+        //this.looseVelocity(elapsedTimeInSeconds);
+
+        this.updateVelocityBasedOnAngularVelocity();
 
         var dist = this.velocity.scale(0.1 * elapsedTime);
         PhiloGL.Vec3.$add(this.sphere.position, dist);
@@ -76,6 +89,18 @@ Ball.prototype.step = function() {
 
     this.update();
     this.updateTime = PhiloGL.Fx.animationTime();
+};
+
+Ball.prototype.looseVelocity = function(elapsedTimeInSeconds) {
+    var rollingFrictionalForce = this.velocity.scale(-1.0 * Constants.ball.rollingFrictionalForceMagnitude / this.velocity.norm());
+    var deltaW = PhiloGL.Vec3.cross(Constants.ball.tableNormal, rollingFrictionalForce).scale(elapsedTimeInSeconds/Constants.ball.inertia);
+
+    this.angularVelocity.$add(deltaW);
+    this.updateVelocityBasedOnAngularVelocity();
+};
+
+Ball.prototype.updateVelocityBasedOnAngularVelocity = function() {
+    this.velocity = PhiloGL.Vec3.cross(this.angularVelocity, Constants.ball.tableNormal).scale(1.0/Constants.ball.tableNormal.norm());
 };
 
 /**
@@ -182,7 +207,7 @@ Ball.prototype.edgeCollision = function(cushion){
 Ball.prototype.isBallColliding = function(otherBall){
 	var dist = (otherBall.position().sub(this.position())).norm();
 
-    return (dist < 2*Constants.ballRadius);
+    return (dist < 1.99*Constants.ballRadius);
 };
 
 
@@ -194,21 +219,28 @@ Ball.prototype.isBallColliding = function(otherBall){
 Ball.prototype.resolveBallImpactPosition = function(otherBall) {
     if (otherBall.velocity.normSq() > this.velocity.normSq()) {
 		otherBall.resolveBallImpactPosition(this);
-	} else {	
+	} else {
+        if (this.isBallColliding(otherBall)) {
 			//Old normal
-			var old = this.prevPosition.sub(otherBall.position());				
+			var old = this.prevPosition.sub(otherBall.position());
 			//Normalen
 			var n = this.prevPosition.sub(this.position());
-			
+
 			//Checka f�r normalflips problem. Flytta olika antal avst�nd enligt gamla hastigheten beroende p� om this mittpunkt har hamnat f�rbi otherballs mittpunkt.
 			if(n.norm() > old.norm()){
-				var dist = (otherBall.position().sub(this.position())).norm();	
+				var dist = (otherBall.position().sub(this.position())).norm();
 				this.position().$sub((this.oldvelocity.scale(1.0/this.oldvelocity.norm())).scale(4*Constants.ballRadius - dist));
 			}
 			else{
 				var dist = (otherBall.position().sub(this.position())).norm();
 				this.position().$sub((this.oldvelocity.scale(1.0/this.oldvelocity.norm())).scale(2*Constants.ballRadius - dist));
 			}
+        } else {
+            ////console.log("Not currently colliding");
+            var dist_forward = (otherBall.position().sub(this.position())).norm() - 2*Constants.ballRadius;
+            this.position().$add(((this.oldvelocity.scale(1.0/this.oldvelocity.norm())).scale(dist_forward)));
+        }
+
 	}
 };
 
@@ -248,11 +280,11 @@ if (otherBall.velocity.normSq() > this.velocity.normSq()) {
 	
 	//Checka f�r normalflips problem
 	if(n.norm() > old.norm()){
-		console.log("HANDE NAGOT SPECIELLT HAR? ");
+		//console.log("HANDE NAGOT SPECIELLT HAR? ");
 		n.$scale(-1);
 	}
 	else{
-		//console.log(n.norm() + " --- " + old.norm() );
+		////console.log(n.norm() + " --- " + old.norm() );
 	}
 			
 	n = n.scale(1.0/n.norm());
@@ -328,11 +360,11 @@ function calculateTempVelocity(currentBall,otherBall) {
 
         //Checka för normalflips problem
         if(new_n.norm() > old.norm()){
-            console.log("HÄNDE NÅGOT SPECIELLT HÄR? ");
+            //console.log("HÄNDE NÅGOT SPECIELLT HÄR? ");
             n.$scale(-1);
         }
         else{
-            //console.log(n.norm() + " --- " + old.norm() );
+            ////console.log(n.norm() + " --- " + old.norm() );
         }
 
         //normaliserar
@@ -356,6 +388,9 @@ function calculateTempVelocity(currentBall,otherBall) {
         //Nya hastigheter
         var delta_velocity_A = currentBall.velocity.sub(v1ny);
         var delta_velocity_B = otherBall.velocity.sub(v2ny);
+
+        currentBall.oldvelocity = new PhiloGL.Vec3(currentBall.velocity.x, currentBall.velocity.y, currentBall.velocity.z);
+        otherBall.oldvelocity = new PhiloGL.Vec3(otherBall.velocity.x, otherBall.velocity.y, otherBall.velocity.z);
 
         // Nya vinkelhastigheter
         var w1ny = Constants.ball.tableNormal.cross(v1ny);

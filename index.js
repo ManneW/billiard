@@ -17,7 +17,7 @@ function webGLStart() {
     //Create arrays to keep track of balls and cushions
     var balls = table.balls;
     var cushions = table.cushions;
-    var pockets = [];
+    var pockets = table.pockets;
 
     // Create logg array
     var logg = new Array(balls.length);
@@ -28,7 +28,7 @@ function webGLStart() {
         }
     }
 
-    pockets.push(new Pocket(0), new Pocket(1), new Pocket(2), new Pocket(3), new Pocket(4), new Pocket(5));
+    //pockets.push(new Pocket(0), new Pocket(1), new Pocket(2), new Pocket(3), new Pocket(4), new Pocket(5));
 
     var lightConfig = {
         enable: true,
@@ -129,68 +129,64 @@ function webGLStart() {
             Globals.previousLoop.end = currentTime;
 
             //Animate
-            draw();
+            //draw();
+            var fps = 40;
+            var simulation_fps = 60;
 
+            setTimeout(render, 1000/fps);
+            setTimeout(draw, 1000/simulation_fps);
+
+            function render() {
+                gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+                scene.render();
+                setTimeout(render, 1000/fps);
+            }
 
             //Draw the scene - this function is a big while loop
             function draw() {
+                setTimeout(draw, 1000/simulation_fps);
                 currentTime = PhiloGL.Fx.animationTime();
-                Globals.timeSinceLastLoop = currentTime - Globals.previousLoop.end;
-                if (Globals.timeSinceLastLoop < (1000/60)) {
-                    PhiloGL.Fx.requestAnimationFrame(draw);
-                    //console.log("Too fast");
-                    return;
-                }
-                gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-				
-				var temp_array = new Array();
+                Globals.timeSinceLastLoop = 1000/simulation_fps;
+                Globals.previousLoop.start = currentTime;
 
-				// Iterate all balls
-                for (var i = 0; i < balls.length; i += 1) {
-					if (!balls[i].inGame) {
-						continue;
-					}
-					
-					// Collision with pockets
-                    for (var pocketIndex = 0; pocketIndex < pockets.length; pocketIndex += 1) {
-                        if(pockets[pocketIndex].isBallInPocket(balls[i])){
-							//console.log("Ball is out of game: " + i);
-							table.pocketBall(balls[i]);
-						}
+
+
+                table.looseBallVelocities();
+                table.step();
+
+                var loopCounter = 0;
+
+                while(table.collideBalls(logg) && loopCounter < 20) {
+                    table.step(-1);
+//                    // Handle collisions
+//                    for (var is = 0; is < table.insides.length; is += 1) {
+//                        var inside = table.insides[is];
+//                        inside.ballA.resolveBallImpactPosition(inside.ballB);
+//                    }
+
+                    console.log(table.collisions.length);
+                    for (var c = 0; c < table.collisions.length; c += 1) {
+
+                        var collision = table.collisions[c];
+                        var collisionDelta = collision; //calculateTempVelocity(collision.ballA, collision.ballB);
+                        //collision.ballA.velocity.$sub(collision.delta_vA);
+                        //collision.ballB.velocity.$sub(collision.delta_vB);
+                        collision.ballA.angularVelocity.$sub(collisionDelta.delta_wA);
+                        collision.ballB.angularVelocity.$sub(collisionDelta.delta_wB);
+                        collision.ballA.update();
+                        collision.ballB.update();
+                        collision.ballA.resolveBallImpactPosition(collision.ballB);
+                        //collision.ballA.step(50);
+                        //collision.ballB.step(50);
                     }
-					
-                    for (var j = 0; j < balls.length; j += 1) {
-						if (!balls[j].inGame ) {
-							continue;
-						}
-						
-						if (i != j) {
-							//Collision with other balls
-							if (balls[i].isBallColliding(balls[j])) {
-								if (!logg[i][j] && !logg[j][i]) {
-									var collision = calculateTempVelocity(balls[i],balls[j]);
-									temp_array.push(collision);
-									logg[i][j] = true;
-									logg[j][i] = true;
-								}
-							} else {
-								logg[i][j] = false;
-								logg[j][i] = false;
-							}
-						}
-                    }
+                    table.step();
+                    loopCounter += 1;
                 }
 				
-				for (var c = 0; c < temp_array.length; c += 1) {
-					var collision = temp_array[c];
-					//collision.ballA.velocity.$sub(collision.delta_vA);
-					//collision.ballB.velocity.$sub(collision.delta_vB);
-                    collision.ballA.angularVelocity.$sub(collision.delta_wA);
-                    collision.ballB.angularVelocity.$sub(collision.delta_wB);
-				}
+
 				
 				for (i = 0; i < balls.length; i += 1) {
-					if (!balls[i].inGame) {
+					if (!balls[i].inGame || balls[i].velocity.norm() == 0) {
 						continue;
 					}
 					// Collision with edges
@@ -201,15 +197,13 @@ function webGLStart() {
 
                 // Update position and velocities for all balls
                 for (i = 0; i < balls.length; i += 1) {
-                    balls[i].step();
+                    //balls[i].step(Globals.timeSinceLastLoop);
                 }
-
-                scene.render();
-
                 Globals.previousLoop.end = PhiloGL.Fx.animationTime();
 
+
                 //request new frame
-                PhiloGL.Fx.requestAnimationFrame(draw);
+                //PhiloGL.Fx.requestAnimationFrame(draw);
             }
         }
     });

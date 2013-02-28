@@ -18,7 +18,13 @@ var Table = function() {
 	//create balls
 	this.balls = [];
 	this.setupBalls();
-	
+
+    this.pockets = [];
+    this.pockets.push(new Pocket(0), new Pocket(1), new Pocket(2), new Pocket(3), new Pocket(4), new Pocket(5));
+
+    this.collisions = [];
+    this.insides = [];
+
 };
 
 Table.prototype.constructTable = function(){
@@ -43,13 +49,12 @@ Table.prototype.constructTable = function(){
 };
 
 Table.prototype.setupBalls = function(){	
-	var cueball = new Ball({x: Constants.tableX/4, y:0} );
+	var cueball = new Ball({x: Constants.tableX/4, y: 2.5*Constants.ballRadius} );
 	cueball.setColorRGBA(1,1,1,1);
-	//cueball.setVelocityXYZ(-2,0,0);
-    cueball.strikeBall(new PhiloGL.Vec3(-70, 0, 0), null);
+    cueball.strikeBall(new PhiloGL.Vec3(-110, 0, 0), null);
 
 	this.balls.push(cueball);
-	var startposition = [-40,0];
+	var startposition = [-40,6*0.5*Constants.ballRadius];
 	for(var rowCount = 0 ; rowCount < 5; rowCount += 1){
 		
 		var startpositionY = startposition[1] -(rowCount+1)*Constants.ballRadius + 0.5*Constants.ballRadius;
@@ -80,4 +85,63 @@ Table.prototype.pocketBall = function(ball){
 	ball.setPositionXYZ(100 - 2.5*this.pocketedBallsCount*Constants.ballRadius, - Constants.tableY/2 - 20, 0);
 	this.pocketedBallsCount += 1;	
 
+};
+
+
+Table.prototype.collideBalls = function () {
+
+
+
+
+    this.collisions = [];
+
+    this.insides = [];
+
+    // Iterate all balls
+    var balls = this.balls;
+    var pockets = this.pockets;
+
+    for (var i = 0; i < balls.length; i += 1) {
+        if (!balls[i].inGame) {
+            continue;
+        }
+
+        // Collision with pockets
+        for (var pocketIndex = 0; pocketIndex < pockets.length; pocketIndex += 1) {
+            if(pockets[pocketIndex].isBallInPocket(balls[i])){
+                this.pocketBall(balls[i]);
+            }
+        }
+
+        for (var j = i; j < balls.length; j += 1) {
+            if (!balls[j].inGame ) {
+                continue;
+            }
+
+            if (i != j) {
+                //Collision with other balls
+                if (balls[i].isBallColliding(balls[j])) {
+                        var collision = calculateTempVelocity(balls[i],balls[j]);
+                        this.collisions.push(collision);
+                } else {
+
+                }
+            }
+        }
+    }
+
+    return (this.collisions.length != 0);
+};
+
+Table.prototype.looseBallVelocities = function() {
+    for (var i = 0; i < this.balls.length; i+=1) {
+        this.balls[i].looseVelocity(Globals.timeSinceLastLoop/1000.0);
+    }
+};
+
+Table.prototype.step = function(timeStep) {
+    // Step the whole simulation backwards or forward
+    for (var i = 0; i < this.balls.length; i+=1) {
+        this.balls[i].step(timeStep);
+    }
 };
