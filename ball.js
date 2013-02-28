@@ -215,7 +215,7 @@ Ball.prototype.distanceVectorToMoveFromMillis = function(elapsedTime) {
 Ball.prototype.edgeCollision = function(cushion){
 	var dotten = this.velocity.dot(cushion.normal);
 	var v2 = cushion.normal.scale(-2*dotten).add(this.velocity);
-	v2 = v2.scale(1);
+	v2 = v2.scale(Constants.cushion.dampening);
 
     var w2 = Constants.ball.tableNormal.cross(v2);
     w2 = w2.scale(1.0 / Constants.ball.tableNormal.norm());

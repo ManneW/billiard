@@ -30,6 +30,9 @@ const Constants = {
         rollingFrictionalForceMagnitude: privateConstants.ball.friction.rolling * privateConstants.g * privateConstants.ball.mass * privateConstants.ball.radius/100
 
     },
+    cushion: {
+        dampening: 0.5
+    },
 	
 	cueLength: 150
 };

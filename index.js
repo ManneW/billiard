@@ -212,12 +212,14 @@ function webGLStart() {
                 }
                 else{	//console.log("N�T R�R SIG");
                     //scene.remove(cue.cylinder); //FUNKAR EJ, VARF�R??
-                    cue.cylinder.position.x =0;
-                    cue.cylinder.position.y =0;
-                    cue.cylinder.position.z =20;
-                    cue.cylinder.update();
+//                    cue.cylinder.position.x =0;
+//                    cue.cylinder.position.y =0;
+//                    cue.cylinder.position.z =20;
+                    //cue.cylinder.update();
+                    cue.followCueball(balls[0]);
                 }
 
+                    cue.update();
                 Globals.previousLoop.end = PhiloGL.Fx.animationTime();
 
 

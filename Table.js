@@ -30,8 +30,8 @@ var Table = function() {
 	this.cue = new Cue(this.balls[0].position());	
 	
 	//Startshot	
-	this.balls[0].strikeBallWithCue(100, this.cue, null);
-	//this.cue.rotateT(this.balls[0]);
+	//this.balls[0].strikeBallWithCue(100, this.cue, null);
+	this.cue.rotateT(this.balls[0]);
 	
 	//Create players
 	player1 = new Player(1);
@@ -61,7 +61,7 @@ Table.prototype.constructTable = function(){
 };
 
 Table.prototype.setupBalls = function(){	
-	var cueball = new Ball({x: Constants.tableX/4, y:0}, [1,1,1,1], 0 );
+	var cueball = new Ball({x: Constants.tableX/4, y:40}, [1,1,1,1], 0 );
 	cueball.setColorRGBA(1,1,1,1);
 	//cueball.setVelocityXYZ(-2,0,0);
     //cueball.strikeBall(new PhiloGL.Vec3(-50, 0, 0), null);
@@ -106,11 +106,16 @@ Table.prototype.setupBalls = function(){
  * @param ball which has been pocketed
  */
 Table.prototype.pocketBall = function(ball){
-	ball.inGame = false;
-	ball.setAngularVelocityXYZ(0,0,0);
-	
-	ball.setPositionXYZ(100 - 2.5*this.pocketedBallsCount*Constants.ballRadius, - Constants.tableY/2 - 20, 0);
-	this.pocketedBallsCount += 1;	
+    if (ball.id != 0) {
+        ball.inGame = false;
+        ball.setAngularVelocityXYZ(0,0,0);
+
+        ball.setPositionXYZ(100 - 2.5*this.pocketedBallsCount*Constants.ballRadius, - Constants.tableY/2 - 20, 0);
+        this.pocketedBallsCount += 1;
+    } else {
+        ball.setAngularVelocityXYZ(0,0,0);
+        ball.setPositionXYZ(0,0,0)
+    }
 
 };
 
