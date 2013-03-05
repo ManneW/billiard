@@ -89,7 +89,6 @@ function createPocket(pocketIndex) {
     };
 }
 
-
 Pocket.prototype.position = function() {
     return this.cylinder.position;
 };
@@ -104,5 +103,3 @@ Pocket.prototype.isBallInPocket = function (ball){
 	var dist = (ball.position().sub(this.position())).norm();
     return (dist < Constants.pocketRadius)
 }
-
-

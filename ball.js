@@ -66,8 +66,10 @@ Ball.prototype.strikeBallWithCue = function(factor, cue, hitpoint) {
     }
     else{
         console.log("YEEEEAH");
+		
         var cylinderPosition = cue.cylinder.position;
-        var direction = this.position().sub(cue.cylinder.position);
+        console.log(cylinderPosition);
+		var direction = this.position().sub(cue.cylinder.position);
         direction.$scale(1/direction.norm());
         var force = direction.scale(factor);
     }

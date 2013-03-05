@@ -3,25 +3,14 @@ function webGLStart() {
         return document.getElementById(d);
     };
 
-	
 	//Create TABLE
-	
 	var table = new Table();
-	//table.constructTable();
 
-
-    // Create pockets
-    var pocket0 = new Pocket(0);
-
-
-    //Create arrays to keep track of balls and cushions
+    //Create arrays to keep track of balls, cushions, pockets and cue
     var balls = table.balls;
     var cushions = table.cushions;
     var pockets = table.pockets;
 	var cue = table.cue;
-
-    // Randomize a bunch of balls
-    
 
     // Create logg array
     var logg = new Array(balls.length);
@@ -31,8 +20,6 @@ function webGLStart() {
             logg[i][j] = false;
         }
     }
-
-    //pockets.push(new Pocket(0), new Pocket(1), new Pocket(2), new Pocket(3), new Pocket(4), new Pocket(5));
 
     var lightConfig = {
         enable: true,
@@ -54,7 +41,7 @@ function webGLStart() {
             }
         }
     };
-
+	
     //Create application
     PhiloGL('billiard-canvas', {
         scene: {
@@ -77,7 +64,7 @@ function webGLStart() {
             }]
         },
         events:{
-            onMouseWheel:function (e) {
+            onMouseWheel: function (e) {
                 e.stop();
                 var camera = this.camera;
                 camera.position.z += 10 * e.wheel;
@@ -88,10 +75,16 @@ function webGLStart() {
                 e.stop();
                 console.log(e);
                 //table.balls[0].strikeBall(90, cue, null);
-				table.balls[0].strikeBall(new PhiloGL.Vec3(e.x, e.y, 0), null);
+				//table.balls[0].strikeBall(new PhiloGL.Vec3(e.x, e.y, 0), null);
+				cue.update();
+				table.balls[0].strikeBallWithCue(90, cue, cue.angle);
 				console.log("ST���T");
 				//scene.remove(cue.cylinder);
-            }
+            },
+			onKeyDown: function (e) {
+				//e.stop();
+				cue.followCueball(balls[0], e);
+			}
         },
         onError:function (err) {
             alert("There was an error creating the app.");
@@ -105,8 +98,6 @@ function webGLStart() {
                 canvas = app.canvas,
                 camera = app.camera;
 
-
-
             //Basic gl setup
             gl.clearColor(1.0, 1.0, 1.0, 0.0);
             gl.clearDepth(1.0);
@@ -114,23 +105,23 @@ function webGLStart() {
             gl.depthFunc(gl.LEQUAL);
             gl.viewport(0, 0, +canvas.width, +canvas.height);
 
-
-            // Add all the balls to the scene
+            //Add all the balls to the scene
             scene.add(table.plane);
             for (var i = 0; i < balls.length; i += 1) {
                 scene.add(balls[i].sphere);
             }
 
-            // Add all the cushions to the scene
+            //Add all the cushions to the scene
             for (var i = 0; i < cushions.length; i += 1) {
                 scene.add(cushions[i].cube);
             }
 
-            // Add all the pockets to the scene
+            //Add all the pockets to the scene
             for (var pocketIndex = 0; pocketIndex < pockets.length; pocketIndex += 1) {
                 scene.add(pockets[pocketIndex].cylinder);
             }
 			
+			//Add cue to the scene
 			scene.add(cue.cylinder);
 
             var currentTime = PhiloGL.Fx.animationTime();
@@ -158,8 +149,6 @@ function webGLStart() {
                 Globals.timeSinceLastLoop = 1000/simulation_fps;
                 Globals.previousLoop.start = currentTime;
 
-
-
                 table.looseBallVelocities();
                 table.step();
 
@@ -175,7 +164,6 @@ function webGLStart() {
 
                     console.log(table.collisions.length);
                     for (var c = 0; c < table.collisions.length; c += 1) {
-
                         var collision = table.collisions[c];
                         var collisionDelta = collision; //calculateTempVelocity(collision.ballA, collision.ballB);
                         //collision.ballA.velocity.$sub(collision.delta_vA);
@@ -191,9 +179,7 @@ function webGLStart() {
                     table.step();
                     loopCounter += 1;
                 }
-				
-
-				
+					
 				for (i = 0; i < balls.length; i += 1) {
 					if (!balls[i].inGame || balls[i].velocity.norm() == 0) {
 						continue;
@@ -208,21 +194,21 @@ function webGLStart() {
                 if(!table.checkForMovingBalls()){
                     //console.log("---");
                     //scene.add(cue.cylinder); //FUNKAR
-                    cue.followCueball(balls[0]);
+                    //cue.followCueball(balls[0]);
+					cue.getContactWithCueball(balls[0]);
                 }
-                else{	//console.log("N�T R�R SIG");
+                else {	//console.log("N�T R�R SIG");
                     //scene.remove(cue.cylinder); //FUNKAR EJ, VARF�R??
-//                    cue.cylinder.position.x =0;
-//                    cue.cylinder.position.y =0;
-//                    cue.cylinder.position.z =20;
+                    //cue.cylinder.position.x =0;
+                    //cue.cylinder.position.y =0;
+                    //cue.cylinder.position.z =20;
                     //cue.cylinder.update();
-                    cue.followCueball(balls[0]);
+                    //cue.followCueball(balls[0]);
+					cue.hideCue();
                 }
-
-                    cue.update();
+				
                 Globals.previousLoop.end = PhiloGL.Fx.animationTime();
-
-
+				
                 //request new frame
                 //PhiloGL.Fx.requestAnimationFrame(draw);
             }

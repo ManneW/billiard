@@ -15,20 +15,20 @@ var Table = function() {
 	this.cushions = [];
 	this.constructTable();
 	
-	//create balls
+	//Create balls
 	this.balls = [];
 	this.setupBalls();
-
+	
+	//Create pockets
     this.pockets = [];
     this.pockets.push(new Pocket(0), new Pocket(1), new Pocket(2), new Pocket(3), new Pocket(4), new Pocket(5));
-
+	
+	//Create Cue
+	this.cue = new Cue(this.balls[0].position());
+	
     this.collisions = [];
     this.insides = [];
 
-	
-	//Create Cue
-	this.cue = new Cue(this.balls[0].position());	
-	
 	//Startshot	
 	//this.balls[0].strikeBallWithCue(100, this.cue, null);
 	this.cue.rotateT(this.balls[0]);
@@ -36,7 +36,6 @@ var Table = function() {
 	//Create players
 	player1 = new Player(1);
 	player2 = new Player(2);
-	
 };
 
 Table.prototype.constructTable = function(){
@@ -61,7 +60,7 @@ Table.prototype.constructTable = function(){
 };
 
 Table.prototype.setupBalls = function(){	
-	var cueball = new Ball({x: Constants.tableX/4, y:40}, [1,1,1,1], 0 );
+	var cueball = new Ball({x: Constants.tableX/4, y: 10}, [1,1,1,1], 0 );
 	cueball.setColorRGBA(1,1,1,1);
 	//cueball.setVelocityXYZ(-2,0,0);
     //cueball.strikeBall(new PhiloGL.Vec3(-50, 0, 0), null);
@@ -90,7 +89,7 @@ Table.prototype.setupBalls = function(){
 				y: startpositionY + ballCount*2*Constants.ballRadius
 				},
 				 color,
-				ballnr
+				3
 			);
 			this.balls.push(ball);
 			ballnr += 1;
