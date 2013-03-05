@@ -18,12 +18,17 @@ var Ball = function(startPosition, color, id) {
     this.totalRotation = new PhiloGL.Mat4();
     this.totalRotation.id();
 
+    var texfile = "ball.jpg";
+    if (id == 11 || id == 1 || id == 2) {
+        texfile = "ball" + id + ".png";
+    }
+
     //Mesh for our billiardball
     this.sphere = new PhiloGL.O3D.Sphere({
         nlat: 30,
         nlong: 30,
         radius: Constants.ballRadius,
-        textures: "ball.jpg",
+        textures: texfile,
         colors: color
 
     });

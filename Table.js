@@ -90,7 +90,7 @@ Table.prototype.setupBalls = function(){
 				y: startpositionY + ballCount*2*Constants.ballRadius
 				},
 				 color,
-				3
+				ballnr
 			);
 			this.balls.push(ball);
 			ballnr += 1;

@@ -66,7 +66,7 @@ function webGLStart() {
             }
         },
         textures: {
-            src: ['ball.jpg'],
+            src: ['ball.jpg', 'ball1.png', 'ball2.png', 'ball11.png'],
             parameters: [{
                 name: 'TEXTURE_MAG_FILTER',
                 value: 'LINEAR'

@@ -39,13 +39,6 @@ Cue.prototype.update = function() {
     T.id();
     T.$translate(pivot.x, pivot.y, 0);
 
-    var Tp = new PhiloGL.Mat4();
-    Tp.id();
-    Tp.$translate(-pivot.x, -pivot.y, 0);
-
-    var Tball = new PhiloGL.Mat4();
-    Tball.id();
-
     var all = new PhiloGL.Mat4();
     all.id();
 
