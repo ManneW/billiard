@@ -194,8 +194,7 @@ function webGLStart() {
                 if(!table.checkForMovingBalls()){
                     //console.log("---");
                     //scene.add(cue.cylinder); //FUNKAR
-                    //cue.followCueball(balls[0]);
-					cue.getContactWithCueball(balls[0]);
+                    cue.followCueball(balls[0]);
                 }
                 else {	//console.log("N�T R�R SIG");
                     //scene.remove(cue.cylinder); //FUNKAR EJ, VARF�R??

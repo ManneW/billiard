@@ -28,10 +28,6 @@ var Table = function() {
 	
     this.collisions = [];
     this.insides = [];
-
-	//Startshot	
-	//this.balls[0].strikeBallWithCue(100, this.cue, null);
-	this.cue.rotateT(this.balls[0]);
 	
 	//Create players
 	player1 = new Player(1);
@@ -89,7 +85,7 @@ Table.prototype.setupBalls = function(){
 				y: startpositionY + ballCount*2*Constants.ballRadius
 				},
 				 color,
-				3
+				ballnr
 			);
 			this.balls.push(ball);
 			ballnr += 1;
