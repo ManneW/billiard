@@ -35,16 +35,17 @@ var Table = function() {
 };
 
 Table.prototype.constructTable = function(){
-	//Create.plane	
+	// Create the plane - the graphical representation of the table
 	this.plane = new PhiloGL.O3D.Plane({
         type:'x,y',
         xlen:Constants.tableX,
         ylen:Constants.tableY,
-        nx:1,
-        ny:1,
+        nx: 1,
+        ny: 1,
         offset:0,
-        colors:[0.5, 1, 0.7, 1]
+        colors:[1/255, 134/255, 77/255, 1]
     });
+    this.plane.uniforms.shininess = 1;
 	
     //Create edges
     var cushion0 = new Cushion([1, 0, 0, 1], 0);
@@ -63,7 +64,7 @@ Table.prototype.setupBalls = function(){
 
 	this.balls.push(cueball);
 	var startposition = [-40,6*0.5*Constants.ballRadius];
-	ballnr = 1;
+	var ballnr = 1;
 	var color;
 	
 	for(var rowCount = 0 ; rowCount < 5; rowCount += 1){
@@ -105,11 +106,13 @@ Table.prototype.pocketBall = function(ball){
         ball.inGame = false;
         ball.setAngularVelocityXYZ(0,0,0);
 
-        ball.setPositionXYZ(100 - 2.5*this.pocketedBallsCount*Constants.ballRadius, - Constants.tableY/2 - 20, 0);
+        ball.setPositionXYZ(100 - 2.5*this.pocketedBallsCount*Constants.ball.radius, - Constants.tableY/2 - 20, 0);
         this.pocketedBallsCount += 1;
     } else {
         ball.setAngularVelocityXYZ(0,0,0);
-        ball.setPositionXYZ(0,0,0)
+
+        // Place the ball on the table again
+        ball.setPositionXYZ(0,0, -Constants.ball.radius);
     }
 
 };

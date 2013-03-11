@@ -47,6 +47,7 @@ Cue.prototype.update = function() {
     all = all.mulMat4(this.rotation);
     all = all.translate(Constants.cueLength/2, 0, 0);
     all = all.rotateAxis(Math.PI/2, new PhiloGL.Vec3(0,0,1));
+    all = all.translate(0,0,-3);
 
     matrix.id();
     //matrix.$translate(pos.x, pos.y, pos.z);

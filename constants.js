@@ -19,6 +19,7 @@ const Constants = {
     pocketRadius: 6,
     g: privateConstants.g,
     ball: {
+        radiusInMeters: privateConstants.ball.radius / 100,
         radius: privateConstants.ball.radius,
         tableNormal: new PhiloGL.Vec3(0, 0, -privateConstants.ball.radius*0.01),
         mass: privateConstants.ball.mass,

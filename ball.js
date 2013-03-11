@@ -19,7 +19,7 @@ var Ball = function(startPosition, color, id) {
     this.totalRotation.id();
 
     var texfile = "ball.jpg";
-    if (id == 11 || id == 1 || id == 2) {
+    if (id == 11 || (id > 0 && id < 9)) {
         texfile = "ball" + id + ".png";
     }
 
@@ -33,9 +33,20 @@ var Ball = function(startPosition, color, id) {
 
     });
 
+    this.shadow = new PhiloGL.O3D.Cylinder({
+        height: 0.1,
+        radius: Constants.ball.radius*0.8,
+        topCap: true,
+        bottomCap: true,
+        colors: [0, 0, 0, 1]
+    });
+
+    this.shadow.rotation.x = Math.PI/2;
+
     //position of
     this.prevPosition =   new PhiloGL.Vec3(startPosition.x, startPosition.y, -3);
     this.sphere.position =   new PhiloGL.Vec3(startPosition.x, startPosition.y, -3);
+    this.sphere.uniforms.shininess = 20;
 
     //update sphere matrix - otherwise it won't move:(
     this.update();
@@ -55,10 +66,92 @@ Ball.prototype.strikeBall = function(force, hitpoint) {
     this.angularVelocity = w;
 };
 
-Ball.prototype.strikeBallWithCue = function(factor, cue, hitpoint) {
+Ball.prototype.strikeBallWithCue = function(factor, cue) {
     if (!this.inGame) {
         return;
     }
+	
+	var alpha = cue.angle;
+	console.log("ANGLES")
+	console.log(alpha);
+	var XdirPos = true;
+	var YdirPos = true;
+	
+	if(alpha <= 0){
+		alpha = 360 +  alpha;
+	}
+	console.log(alpha);
+	
+	if (alpha > 360){
+		alpha = alpha % 360;
+	}
+	
+	if (alpha%90 == 0){
+	
+		switch(alpha){
+					
+			case 90: x = 0;
+					y = Constants.cueLength/2;
+					break;
+					
+			case 180: x = - Constants.cueLength/2;
+					y = 0;
+					break;
+			case 270: x = 0;
+					y = - Constants.cueLength/2;
+					break;		
+					
+			case 360: x = Constants.cueLength/2;
+					y = 0;
+					break;
+		
+		}	
+	}
+	else {	
+	
+		if(alpha < 90){
+			XdirPos = true;
+			YdirPos = true;
+		}
+		else if (alpha < 180){
+			alpha = 180 - alpha;
+			XdirPos = false;
+			YdirPos = true;
+		}
+		else if(alpha < 270){
+			alpha = alpha - 180;	
+			XdirPos = false;
+			YdirPos = false;
+		}
+		else if(alpha < 360){
+			alpha = 360 - alpha;
+			XdirPos = true;
+			YdirPos = false;
+		}
+		
+		console.log(alpha);
+		alpha = alpha * Math.PI / 180;
+		console.log(alpha);
+		var x = (Constants.cueLength/2) * Math.cos(alpha);
+		var y = (Constants.cueLength/2) * Math.sin(alpha);
+		
+		if (!XdirPos){
+			console.log("X NEGATIV");
+			x = -x;
+		}
+		if (!YdirPos){
+			console.log("Y NEGATIV");
+			y = - y;
+		}	
+	}
+	
+	console.log(x);	
+	console.log(y);
+	
+	
+	var cuePosition = new PhiloGL.Vec3(this.position().x + x,this.position().y + y,this.position().z);
+		
+	
     console.log("STRIKE");
     if(cue == null){
         console.log("WHOOO");
@@ -67,9 +160,10 @@ Ball.prototype.strikeBallWithCue = function(factor, cue, hitpoint) {
     else{
         console.log("YEEEEAH");
 		
-        var cylinderPosition = cue.cylinder.position;
+        //var cylinderPosition = cue.cylinder.position;
+		var cylinderPosition = cuePosition;
         console.log(cylinderPosition);
-		var direction = this.position().sub(cue.cylinder.position);
+		var direction = this.position().sub(cylinderPosition );
         direction.$scale(1/direction.norm());
         var force = direction.scale(factor);
     }
@@ -77,7 +171,7 @@ Ball.prototype.strikeBallWithCue = function(factor, cue, hitpoint) {
     var a = force.scale(1.0 / Constants.ball.mass);
     var v = a.scale(0.01);
     var w = Constants.ball.tableNormal.cross(v);
-    w = w.scale(1.0 / Constants.ball.tableNormal.norm());
+    w = w.scale(1.0 / Constants.ball.tableNormal.normSq());
 
     this.velocity = v;
     this.angularVelocity = w;
@@ -98,7 +192,7 @@ Ball.prototype.step = function(timeStep) {
 
     // Resting ball condition
     // TODO: Check if tweak is possible?
-    if (this.angularVelocity.norm() < 0.01) {
+    if (this.angularVelocity.norm() < 0.5) {
         this.angularVelocity = new PhiloGL.Vec3(0,0,0);
         this.velocity = new PhiloGL.Vec3(0,0,0);
     } else {
@@ -127,15 +221,27 @@ Ball.prototype.step = function(timeStep) {
 };
 
 Ball.prototype.looseVelocity = function(elapsedTimeInSeconds) {
-    var rollingFrictionalForce = this.velocity.scale(-1.0 * Constants.ball.rollingFrictionalForceMagnitude / this.velocity.norm());
-    var deltaW = PhiloGL.Vec3.cross(Constants.ball.tableNormal, rollingFrictionalForce).scale(elapsedTimeInSeconds/Constants.ball.inertia);
+//    var rollingFrictionalForce = this.velocity.scale(-1.0 * Constants.ball.rollingFrictionalForceMagnitude / this.velocity.norm());
+//    var deltaW = PhiloGL.Vec3.cross(Constants.ball.tableNormal, rollingFrictionalForce).scale(elapsedTimeInSeconds/Constants.ball.inertia);
+    var rollingFrictionalForce = this.velocity.scale(-1.0).unit();
+    var deltaW = PhiloGL.Vec3.cross(Constants.ball.tableNormal, rollingFrictionalForce).unit();
+        deltaW = deltaW.scale((Constants.ball.rollingFrictionalForceMagnitude * elapsedTimeInSeconds)/Constants.ball.inertia);
+
+    console.log('inertia:' + Constants.ball.inertia);
 
     this.angularVelocity.$add(deltaW);
     this.updateVelocityBasedOnAngularVelocity();
 };
 
 Ball.prototype.updateVelocityBasedOnAngularVelocity = function() {
-    this.velocity = PhiloGL.Vec3.cross(this.angularVelocity, Constants.ball.tableNormal).scale(1.0/Constants.ball.tableNormal.norm());
+    var velocity = PhiloGL.Vec3.cross(this.angularVelocity, Constants.ball.tableNormal).unit();
+    velocity = velocity.scale(this.angularVelocity.norm() * Constants.ball.tableNormal.norm());
+
+    this.velocity = velocity;//PhiloGL.Vec3.cross(this.angularVelocity, Constants.ball.tableNormal).scale(1.0/Constants.ball.tableNormal.norm());
+    if (velocity.norm() != 0) {
+        var me = this;
+        console.log("changed");
+    }
 };
 
 /**
@@ -151,13 +257,17 @@ Ball.prototype.update = function () {
     matrix.$translate(pos.x, pos.y, pos.z);
     matrix.$mulMat4(this.totalRotation);
     matrix.$scale(scale.x, scale.y, scale.z);
+
+    this.shadow.position = new PhiloGL.Vec3(this.sphere.position.x, this.sphere.position.y, 0);
+    this.shadow.update();
 };
 
 
 Ball.prototype.rotateW = function(w, dt) {
     var rotation = new PhiloGL.Mat4();
     rotation.id();
-    this.totalRotation = rotation.rotateAxis(dt*w.norm()*(180/Math.PI), w.unit()).mulMat4(this.totalRotation);
+    //this.totalRotation = rotation.rotateAxis(dt*w.norm()*(1/0.03), w.unit()).mulMat4(this.totalRotation);
+    this.totalRotation = rotation.rotateAxis(dt*w.norm(), w.unit()).mulMat4(this.totalRotation);
 };
 
 /**
@@ -262,12 +372,13 @@ Ball.prototype.resolveBallImpactPosition = function(otherBall) {
 			var n = this.prevPosition.sub(this.position());
 
 			//Checka f�r normalflips problem. Flytta olika antal avst�nd enligt gamla hastigheten beroende p� om this mittpunkt har hamnat f�rbi otherballs mittpunkt.
+            var dist = null;
 			if(n.norm() > old.norm()){
-				var dist = (otherBall.position().sub(this.position())).norm();
+				dist = (otherBall.position().sub(this.position())).norm();
 				this.position().$sub((this.oldvelocity.scale(1.0/this.oldvelocity.norm())).scale(4*Constants.ballRadius - dist));
 			}
 			else{
-				var dist = (otherBall.position().sub(this.position())).norm();
+				dist = (otherBall.position().sub(this.position())).norm();
 				this.position().$sub((this.oldvelocity.scale(1.0/this.oldvelocity.norm())).scale(2*Constants.ballRadius - dist));
 			}
         } else {
@@ -428,11 +539,17 @@ function calculateTempVelocity(currentBall,otherBall) {
         otherBall.oldvelocity = new PhiloGL.Vec3(otherBall.velocity.x, otherBall.velocity.y, otherBall.velocity.z);
 
         // Nya vinkelhastigheter
+//        var w1ny = Constants.ball.tableNormal.cross(v1ny).unit();
+//        w1ny = w1ny.scale(v1ny.norm() / Constants.ball.tableNormal.norm());
+//
+//        var w2ny = Constants.ball.tableNormal.cross(v2ny).unit();
+//        w2ny = w2ny.scale(v2ny.norm() / Constants.ball.tableNormal.norm());
+
         var w1ny = Constants.ball.tableNormal.cross(v1ny);
-        w1ny = w1ny.scale(1.0 / Constants.ball.tableNormal.norm());
+        w1ny = w1ny.scale(1.0 / (Constants.ball.tableNormal.normSq()));
 
         var w2ny = Constants.ball.tableNormal.cross(v2ny);
-        w2ny = w2ny.scale(1.0 / Constants.ball.tableNormal.norm());
+        w2ny = w2ny.scale(1.0 / (Constants.ball.tableNormal.normSq()));
 
         var delta_w_A = currentBall.angularVelocity.sub(w1ny);
         var delta_w_B = otherBall.angularVelocity.sub(w2ny);
