@@ -5,29 +5,21 @@ function webGLStart() {
 
     // Set up textures
     var textures = ['ball.jpg', 'ball11.png'];
-
+    // Add all ball textures
     for (var ballCounter = 1; ballCounter < 9; ballCounter += 1) {
         textures.push('ball' + ballCounter + '.png');
     }
 
-	// Create TABLE
+	// Create the table
 	var table = new Table();
 
-    // Create arrays to keep track of balls, cushions, pockets and cue
+    // Fetch arrays from table that keeps track of balls, cushions, pockets and cue
     var balls = table.balls;
     var cushions = table.cushions;
     var pockets = table.pockets;
 	var cue = table.cue;
 
-    // Create logg array
-    var logg = new Array(balls.length);
-    for (var i = 0; i < logg.length; i += 1) {
-        logg[i] = new Array(balls.length);
-        for (var j = 0; j < logg[i].length; j += 1) {
-            logg[i][j] = false;
-        }
-    }
-
+    // Configure the scene lighting
     var lightConfig = {
         enable: true,
         ambient: {
@@ -66,7 +58,7 @@ function webGLStart() {
         }
     };
 	
-    //Create application
+    // Create WebGL/PhiloGL application
     PhiloGL('billiard-canvas', {
         program: {
             from: 'uris',
@@ -75,7 +67,6 @@ function webGLStart() {
             fs: 'frag-lighting.fs.glsl',
             noCache: true
         },
-
         scene: {
             lights: lightConfig
         },
@@ -94,7 +85,8 @@ function webGLStart() {
                 value: 'LINEAR'
             }]
         },
-        events:{
+        events: {
+            // Create listener for camera zoom
             onMouseWheel: function (e) {
                 e.stop();
                 var camera = this.camera;
@@ -104,90 +96,86 @@ function webGLStart() {
                 camera.update();
 
             },
-            onClick: function (e) {
-                e.stop();
-                console.log(e);
-                //table.balls[0].strikeBall(90, cue, null);
-				//table.balls[0].strikeBall(new PhiloGL.Vec3(e.x, e.y, 0), null);
-				cue.update();
-				table.balls[0].strikeBallWithCue(90, cue);
-				//scene.remove(cue.cylinder);
-            },
+            // Create listener for key press
 			onKeyDown: function (e) {
-				//e.stop();
-				cue.followCueball(balls[0], e);
+                // Handle cue control
+				cue.handleCue(balls[0], e);
 			}
         },
+
         onError:function (err) {
             alert("There was an error creating the app.");
             console.log(err);
         },
+
+        // Do the setup of all WebGL related things
         onLoad:function (app) {
-            //Unpack app properties
+            // Create access to app properties
             var gl = app.gl,
                 program = app.program,
                 scene = app.scene,
                 canvas = app.canvas,
                 camera = app.camera;
 
-//            canvas.width = document.width * 0.99;
-//            canvas.height= document.height * 0.99;
-
-            //Basic gl setup
+            // Basic gl setup
             gl.clearColor(0.0, 0.0, 0.0, 0.0);
             gl.clearDepth(1.0);
             gl.enable(gl.DEPTH_TEST);
-            //gl.enable(gl.BLEND);
             gl.depthFunc(gl.LEQUAL);
-
             gl.viewport(0, 0, +canvas.width, +canvas.height);
 
-            //Add all the balls to the scene
+            // Add the table to the scene
             scene.add(table.plane);
-            for (var i = 0; i < balls.length; i += 1) {
-                scene.add(balls[i].sphere);
-                scene.add(balls[i].shadow);
+
+            // Add all the balls to the scene
+            for (var ballI = 0; ballI < balls.length; ballI += 1) {
+                scene.add(balls[ballI].sphere);
+
+                // Add the ball's shadow as well
+                scene.add(balls[ballI].shadow);
             }
 
-            //Add all the cushions to the scene
-            for (var i = 0; i < cushions.length; i += 1) {
-                scene.add(cushions[i].cube);
+            // Add all the cushions to the scene
+            for (var cushionI = 0; cushionI < cushions.length; cushionI += 1) {
+                scene.add(cushions[cushionI].cube);
             }
 
-            //Add all the pockets to the scene
-            for (var pocketIndex = 0; pocketIndex < pockets.length; pocketIndex += 1) {
-                scene.add(pockets[pocketIndex].cylinder);
+            // Add all the pockets to the scene
+            for (var pocketI = 0; pocketI < pockets.length; pocketI += 1) {
+                scene.add(pockets[pocketI].cylinder);
             }
 			
-			//Add cue to the scene
+			// Add the cue to the scene
 			scene.add(cue.cylinder);
 
-            var currentTime = PhiloGL.Fx.animationTime();
-            Globals.previousLoop.start = currentTime;
-            Globals.previousLoop.end = currentTime;
+            // Set up variables for the simulation
+            var fps = 60; // How often to re-render the scene
+            var simulation_fps = 60; // How many simulation steps per second
+            var slowMotionFactor = 1; // 1 = "real time", 0.5 = "50% slow motion"
 
-            //Animate
-            //draw();
-            var fps = 40;
-            var simulation_fps = 60;
-            var slowMotionFactor = 0.5;
-
-
+            // Make render and simulateTable being called with a delay of the times specified above
             setTimeout(render, 1000/fps);
-            setTimeout(draw, 1000/(simulation_fps*slowMotionFactor));
+            setTimeout(simulateTable, 1000/(simulation_fps*slowMotionFactor));
 
+            /**
+             * Renders the scene.
+             */
             function render() {
+                // Make the rendering being triggered again (with delay)
+                setTimeout(render, 1000/fps);
+
                 gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
                 scene.render();
-                setTimeout(render, 1000/fps);
             }
 
-            //Draw the scene - this function is a big while loop
-            function draw() {
-                setTimeout(draw, 1000/(simulation_fps*slowMotionFactor));
-                currentTime = PhiloGL.Fx.animationTime();
+            /**
+             * Advance the simulation one time step.
+             *
+             * The time step size is derived from simulation_fps.
+             */
+            function simulateTable() {
+                setTimeout(simulateTable, 1000/(simulation_fps*slowMotionFactor));
                 Globals.timeSinceLastLoop = 1000/simulation_fps;
-                Globals.previousLoop.start = currentTime;
 
                 // Decrease the velocities (energy) of the balls
                 table.looseBallVelocities();
@@ -197,56 +185,55 @@ function webGLStart() {
 
                 // Iterate and check for collissions (max 20 iterations)
                 var loopCounter = 0;
-                while(table.collideBalls(logg) && loopCounter < 20) {
+                while(table.collideBalls() && loopCounter < 20) {
                     // Rewind the table one step
                     table.step(-1);
 
                     // Resolve the collisions that was detected
                     for (var c = 0; c < table.collisions.length; c += 1) {
                         var collision = table.collisions[c];
-                        var collisionDelta = collision; //calculateTempVelocity(collision.ballA, collision.ballB);
-                        //collision.ballA.velocity.$sub(collision.delta_vA);
-                        //collision.ballB.velocity.$sub(collision.delta_vB);
-                        collision.ballA.angularVelocity.$sub(collisionDelta.delta_wA);
+                        // Alter the angular velocities based on the velocity change from the collision
+                        collision.ballA.angularVelocity.$sub(collision.delta_wA);
+                        collision.ballB.angularVelocity.$sub(collision.delta_wB);
+
+                        // Update the velocities based on the angular velocities
                         collision.ballA.updateVelocityBasedOnAngularVelocity();
-                        collision.ballB.angularVelocity.$sub(collisionDelta.delta_wB);
                         collision.ballB.updateVelocityBasedOnAngularVelocity();
 
+                        // Adjust the impact position of the fastest moving ball (ballA)
+                        collision.ballA.resolveBallImpactPosition(collision.ballB);
+
+                        // Update the graphical representations
                         collision.ballA.update();
                         collision.ballB.update();
-                        collision.ballA.resolveBallImpactPosition(collision.ballB);
-                        //collision.ballA.looseVelocity(Globals.timeSinceLastLoop / 1000);
-                        //collision.ballB.looseVelocity(Globals.timeSinceLastLoop / 1000);
-                        //collision.ballA.step(50);
-                        //collision.ballB.step(50);
                     }
+
+                    // Advance the table one step again
                     table.step();
                     loopCounter += 1;
                 }
 
                 // Check for cushion collisions
-				for (i = 0; i < balls.length; i += 1) {
-					if (!balls[i].inGame || balls[i].velocity.norm() == 0) {
+				for (var ballI = 0; ballI < balls.length; ballI += 1) {
+					if (!balls[ballI].inGame || balls[ballI].velocity.norm() == 0) {
 						continue; // Skip if the ball isn't moving
 					}
 
 					// Do edge collisions
-					for (var cushionIndex = 0; cushionIndex < cushions.length; cushionIndex += 1) {
-						cushions[cushionIndex].resolveCollision(balls[i]);
+					for (var cushionI = 0; cushionI < cushions.length; cushionI += 1) {
+						cushions[cushionI].resolveCollision(balls[ballI]);
 					}
                 }
 
                 // Stuff for handling the cue
-                if(!table.checkForMovingBalls()){
-                    // No balls are moving - display the cue and follow the cue ball
-                    cue.followCueball(balls[0]);
+                if (!table.checkForMovingBalls()){
+                    // No balls are moving - display the cue and move to the cue ball
+                    cue.handleCue(balls[0]);
                 }
                 else {
                     // Some balls are moving - hide the cue
 					cue.hideCue();
                 }
-				
-                Globals.previousLoop.end = PhiloGL.Fx.animationTime();
             }
         }
     });

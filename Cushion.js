@@ -139,14 +139,14 @@ function createCushion(index) {
     switch(index) {
         case 0:
             position = {
-                x: Constants.tableX/2 - 1,
+                x: Constants.table.sizeX/2 - 1,
                 y: 0,
                 z: -height
             };
 
             scalefactor = {
                 x:1,
-                y: Constants.tableY/2,
+                y: Constants.table.sizeY/2,
                 z: height
             };
 
@@ -155,12 +155,12 @@ function createCushion(index) {
         case 1:
             position = {
                 x: 0,
-                y: Constants.tableY/2 - 1,
+                y: Constants.table.sizeY/2 - 1,
                 z: -height
             };
 
             scalefactor = {
-                x: Constants.tableX/2,
+                x: Constants.table.sizeX/2,
                 y: 1,
                 z: height
             };
@@ -169,14 +169,14 @@ function createCushion(index) {
             break;
         case 2:
             position = {
-                x: - Constants.tableX/2 + 1,
+                x: - Constants.table.sizeX/2 + 1,
                 y: 0,
                 z: -height
             };
 
             scalefactor = {
                 x:1,
-                y: Constants.tableY/2,
+                y: Constants.table.sizeY/2,
                 z: height
             };
 
@@ -185,12 +185,12 @@ function createCushion(index) {
         case 3:
             position = {
                 x: 0,
-                y: - Constants.tableY/2 + 1,
+                y: - Constants.table.sizeY/2 + 1,
                 z: -height
             };
 
             scalefactor = {
-                x: Constants.tableX/2,
+                x: Constants.table.sizeX/2,
                 y: 1,
                 z: height
             };

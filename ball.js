@@ -27,7 +27,7 @@ var Ball = function(startPosition, color, id) {
     this.sphere = new PhiloGL.O3D.Sphere({
         nlat: 30,
         nlong: 30,
-        radius: Constants.ballRadius,
+        radius: Constants.ball.radius,
         textures: texfile,
         colors: color
 
@@ -72,7 +72,7 @@ Ball.prototype.strikeBallWithCue = function(factor, cue) {
     }
 	
 	var alpha = cue.angle;
-	console.log("ANGLES")
+	console.log("ANGLES");
 	console.log(alpha);
 	var XdirPos = true;
 	var YdirPos = true;
@@ -86,22 +86,22 @@ Ball.prototype.strikeBallWithCue = function(factor, cue) {
 		alpha = alpha % 360;
 	}
 	
-	if (alpha%90 == 0){
+	if (alpha % 90 == 0){
 	
 		switch(alpha){
 					
 			case 90: x = 0;
-					y = Constants.cueLength/2;
+					y = Constants.cue.length/2;
 					break;
 					
-			case 180: x = - Constants.cueLength/2;
+			case 180: x = - Constants.cue.length/2;
 					y = 0;
 					break;
 			case 270: x = 0;
-					y = - Constants.cueLength/2;
+					y = - Constants.cue.length/2;
 					break;		
 					
-			case 360: x = Constants.cueLength/2;
+			case 360: x = Constants.cue.length/2;
 					y = 0;
 					break;
 		
@@ -132,8 +132,8 @@ Ball.prototype.strikeBallWithCue = function(factor, cue) {
 		console.log(alpha);
 		alpha = alpha * Math.PI / 180;
 		console.log(alpha);
-		var x = (Constants.cueLength/2) * Math.cos(alpha);
-		var y = (Constants.cueLength/2) * Math.sin(alpha);
+		var x = (Constants.cue.length/2) * Math.cos(alpha);
+		var y = (Constants.cue.length/2) * Math.sin(alpha);
 		
 		if (!XdirPos){
 			console.log("X NEGATIV");
@@ -196,17 +196,9 @@ Ball.prototype.step = function(timeStep) {
         this.angularVelocity = new PhiloGL.Vec3(0,0,0);
         this.velocity = new PhiloGL.Vec3(0,0,0);
     } else {
-        //var elapsedTime = PhiloGL.Fx.animationTime()-this.updateTime;
+
         var elapsedTimeInSeconds = factor * Globals.timeSinceLastLoop / 1000.0;//1.0/60.0;//elapsedTime / 1000.0;
         elapsedTime = elapsedTimeInSeconds * 1000;
-
-//        var rollingFrictionalForce = this.velocity.scale(-1.0 * Constants.ball.rollingFrictionalForceMagnitude / this.velocity.norm());
-//
-//        var deltaW = PhiloGL.Vec3.cross(Constants.ball.tableNormal, rollingFrictionalForce).scale(elapsedTimeInSeconds/Constants.ball.inertia);
-//        this.angularVelocity.$add(deltaW);
-//        this.velocity = PhiloGL.Vec3.cross(this.angularVelocity, Constants.ball.tableNormal).scale(1.0/Constants.ball.tableNormal.norm());
-
-        //this.looseVelocity(elapsedTimeInSeconds);
 
         this.updateVelocityBasedOnAngularVelocity();
 
@@ -221,13 +213,10 @@ Ball.prototype.step = function(timeStep) {
 };
 
 Ball.prototype.looseVelocity = function(elapsedTimeInSeconds) {
-//    var rollingFrictionalForce = this.velocity.scale(-1.0 * Constants.ball.rollingFrictionalForceMagnitude / this.velocity.norm());
-//    var deltaW = PhiloGL.Vec3.cross(Constants.ball.tableNormal, rollingFrictionalForce).scale(elapsedTimeInSeconds/Constants.ball.inertia);
     var rollingFrictionalForce = this.velocity.scale(-1.0).unit();
     var deltaW = PhiloGL.Vec3.cross(Constants.ball.tableNormal, rollingFrictionalForce).unit();
         deltaW = deltaW.scale((Constants.ball.rollingFrictionalForceMagnitude * elapsedTimeInSeconds)/Constants.ball.inertia);
 
-    console.log('inertia:' + Constants.ball.inertia);
 
     this.angularVelocity.$add(deltaW);
     this.updateVelocityBasedOnAngularVelocity();
@@ -335,7 +324,7 @@ Ball.prototype.edgeCollision = function(cushion){
 	v2 = v2.scale(Constants.cushion.dampening);
 
     var w2 = Constants.ball.tableNormal.cross(v2);
-    w2 = w2.scale(1.0 / Constants.ball.tableNormal.norm());
+    w2 = w2.scale(1.0 / Constants.ball.tableNormal.normSq());
 
     //this.totalRotation.id();
 
@@ -352,7 +341,7 @@ Ball.prototype.edgeCollision = function(cushion){
 Ball.prototype.isBallColliding = function(otherBall){
 	var dist = (otherBall.position().sub(this.position())).norm();
 
-    return (dist < 1.99*Constants.ballRadius);
+    return (dist < 1.99*Constants.ball.radius);
 };
 
 
@@ -375,15 +364,15 @@ Ball.prototype.resolveBallImpactPosition = function(otherBall) {
             var dist = null;
 			if(n.norm() > old.norm()){
 				dist = (otherBall.position().sub(this.position())).norm();
-				this.position().$sub((this.oldvelocity.scale(1.0/this.oldvelocity.norm())).scale(4*Constants.ballRadius - dist));
+				this.position().$sub((this.oldvelocity.scale(1.0/this.oldvelocity.norm())).scale(4*Constants.ball.radius - dist));
 			}
 			else{
 				dist = (otherBall.position().sub(this.position())).norm();
-				this.position().$sub((this.oldvelocity.scale(1.0/this.oldvelocity.norm())).scale(2*Constants.ballRadius - dist));
+				this.position().$sub((this.oldvelocity.scale(1.0/this.oldvelocity.norm())).scale(2*Constants.ball.radius - dist));
 			}
         } else {
             ////console.log("Not currently colliding");
-            var dist_forward = (otherBall.position().sub(this.position())).norm() - 2*Constants.ballRadius;
+            var dist_forward = (otherBall.position().sub(this.position())).norm() - 2*Constants.ball.radius;
             this.position().$add(((this.oldvelocity.scale(1.0/this.oldvelocity.norm())).scale(dist_forward)));
         }
 
@@ -404,7 +393,7 @@ Ball.prototype.resolveBallImpactPositionAlt = function(otherBall) {
 	} else {
 		var dist = (otherBall.position().sub(this.position())).norm();
 		
-		this.position().$add((this.velocity.scale(1.0/this.velocity.norm())).scale(2*Constants.ballRadius - dist));
+		this.position().$add((this.velocity.scale(1.0/this.velocity.norm())).scale(2*Constants.ball.radius - dist));
 	}
 };
 
@@ -480,8 +469,8 @@ if (otherBall.velocity.normSq() > this.velocity.normSq()) {
  * @return {Boolean} The ball has left the table
  */
 Ball.prototype.offTable = function() {
-    return ((this.position().x < -Constants.tableX / 2.0 || this.position().x > Constants.tableX / 2.0) ||
-            (this.position().y < -Constants.tableY / 2.0 || this.position().y > Constants.tableY / 2.0));
+    return ((this.position().x < -Constants.table.sizeX / 2.0 || this.position().x > Constants.table.sizeX / 2.0) ||
+            (this.position().y < -Constants.table.sizeY / 2.0 || this.position().y > Constants.table.sizeY / 2.0));
 };
 
 /**

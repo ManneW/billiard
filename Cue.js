@@ -8,7 +8,7 @@
 var Cue = function(cueballPosition){
 	this.cylinder = new PhiloGL.O3D.Cylinder({
 		radius : 1.2,
-		height : Constants.cueLength,
+		height : Constants.cue.length,
 		colors : [0.8, 0.5, 0, 1],
 		topCap: true,
 		bottomCap : true	
@@ -34,38 +34,33 @@ Cue.prototype.update = function() {
     T.id();
     T.$translate(pivot.x, pivot.y, 0);
 
-    //var Tp = new PhiloGL.Mat4();
-    //Tp.id();
-    //Tp.$translate(-pivot.x, -pivot.y, 0);
-
-    //var Tball = new PhiloGL.Mat4();
-    //Tball.id();
-
     var all = new PhiloGL.Mat4();
     all.id();
     all = all.mulMat4(T);
     all = all.mulMat4(this.rotation);
-    all = all.translate(Constants.cueLength/2, 0, 0);
+    all = all.translate(Constants.cue.length/2, 0, 0);
     all = all.rotateAxis(Math.PI/2, new PhiloGL.Vec3(0,0,1));
     all = all.translate(0,0,-3);
 
     matrix.id();
-    //matrix.$translate(pos.x, pos.y, pos.z);
     matrix.$mulMat4(all);
-    //matrix.$mulMat4(Tp);
-    //matrix.$mulMat4(this.rotation);
-    //matrix.$mulMat4(T);
     matrix.$scale(scale.x, scale.y, scale.z);
 };
 
-Cue.prototype.followCueball = function(cueball, e){
+Cue.prototype.handleCue = function(cueball, e){
 	if (typeof e != "undefined") {
 		if (e.key == "right") {
+            e.stop();
 			this.rotateRight(cueball);
 		}
 		else if (e.key == "left") {
+            e.stop();
 			this.rotateLeft(cueball);
 		}
+        else if (e.key == "space") {
+            e.stop();
+            cueball.strikeBallWithCue(90, this);
+        }
 	}
 	
 	this.ballPosition = cueball.position();
