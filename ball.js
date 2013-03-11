@@ -223,15 +223,13 @@ Ball.prototype.rotateW = function(w, dt) {
 };
 
 /**
- * Move the ball a given distance
+ * Set the color of the ball.
  *
- * @param distance A vector representing the distance
+ * @param r
+ * @param g
+ * @param b
+ * @param a
  */
-Ball.prototype.move = function(distance) {
-	this.prevPosition = new PhiloGL.Vec3(this.sphere.position.x, this.sphere.position.y, this.sphere.position.z);
-	PhiloGL.Vec3.$add(this.sphere.position, distance);
-};
-
 Ball.prototype.setColorRGBA = function(r,g,b,a){
 	this.sphere.colors = [r,g,b,a];
 };
