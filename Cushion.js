@@ -6,7 +6,6 @@
  * @constructor
  */
 var Cushion = function(color, index) {
-
     // Cube representing the cushion (visual representation)
     this.cube = new PhiloGL.O3D.Cube({
         colors: color
@@ -50,19 +49,15 @@ Cushion.prototype.getPosition = function () {
  * @param ball
  */
 Cushion.prototype.resolveCollision = function(ball) {
-    var cushionPosition = this.getPosition();
-    cushionPosition = new PhiloGL.Vec3(cushionPosition.x, cushionPosition.y, cushionPosition.z);
-    var ballPosition = ball.position();
-
     var collisionDetected = this.isBallColliding(ball);
 
     if (!collisionDetected) {
         return;
     }
 
+    // Resolve the impact position and trigger the collision calculation.
     this.resolveBallImpactPosition(ball);
     ball.edgeCollision(this);
-
 };
 
 /**
@@ -77,7 +72,7 @@ Cushion.prototype.resolveBallImpactPosition = function(ball) {
     var resolutionLimit = 10; //antal iterationer
     var isColliding = this.isBallColliding(ball);
     if (isColliding) {
-        var k = ball.distanceVectorToMoveFromMillis(Globals.timeSinceLastLoop * 400).scale(100);
+        var k = ball.distanceVectorToMoveFromMillis(Globals.timeSinceLastLoop * 400);
         for (var i = 0; i < resolutionLimit; i += 1) {
             if (isColliding) {
                 ball.getPosition().$sub(k);
@@ -90,6 +85,11 @@ Cushion.prototype.resolveBallImpactPosition = function(ball) {
     }
 };
 
+/**
+ * Check whether a ball is colliding with the cushion or not.
+ * @param ball
+ * @return {Boolean} Returns true if the ball is colliding, false otherwise.
+ */
 Cushion.prototype.isBallColliding = function(ball) {
     // Get the position of the cushion
     var cushionPosition = this.getPosition();
@@ -119,7 +119,6 @@ Cushion.prototype.isBallColliding = function(ball) {
 
     return collisionDetected;
 };
-
 
 /**
  * Create the cushion meta data according to this index.
@@ -210,7 +209,3 @@ function createCushion(index) {
         normal: normal
     };
 }
-
-//Cusion.prototype.collision = function(ball) {
-//    if (ball.position())
-//};

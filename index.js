@@ -150,8 +150,8 @@ function webGLStart() {
 
             // Set up variables for the simulation
             var fps = 60; // How often to re-render the scene
-            var simulation_fps = 60; // How many simulation steps per second
-            var slowMotionFactor = 1; // 1 = "real time", 0.5 = "50% slow motion"
+            var simulation_fps = 120; // How many simulation steps per second
+            var slowMotionFactor = 0.1; // 1 = "real time", 0.5 = "50% slow motion"
 
             // Make render and simulateTable being called with a delay of the times specified above
             setTimeout(render, 1000/fps);
@@ -201,7 +201,7 @@ function webGLStart() {
                         collision.ballB.updateVelocityBasedOnAngularVelocity();
 
                         // Adjust the impact position of the fastest moving ball (ballA)
-                        collision.ballA.resolveBallImpactPosition(collision.ballB);
+                        //collision.ballA.resolveBallImpactPosition(collision.ballB);
 
                         // Update the graphical representations
                         collision.ballA.update();
