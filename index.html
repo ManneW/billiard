@@ -1,7 +1,11 @@
+<!doctype html>
 <html>
 
 <head>
 <title>Billiard</title>
+    <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.1/themes/base/jquery-ui.css" />
+    <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+    <script src="http://code.jquery.com/ui/1.10.1/jquery-ui.js"></script>
     <script type="text/javascript" src="philo/build/PhiloGL.js"></script>
     <script type="text/javascript" src="constants.js"></script>
     <script type="text/javascript" src="Player.js"></script>
@@ -11,41 +15,59 @@
     <script type="text/javascript" src="Cushion.js"></script>
     <script type="text/javascript" src="Pocket.js"></script>
     <script type="text/javascript" src="index.js"></script>
+    <script type="text/javascript">
+        // Init the slider in the UI
+        $(function() {
+            $( "#slider-vertical").slider({
+                orientation: "vertical",
+                range: "min",
+                min: 20,
+                max: 150,
+                value: Globals.strikeForce,
+                slide: function(event, ui) {
+                    Globals.strikeForce = ui.value;
+                    $("#forceField").html(ui.value);
+                }
+            });
+            $("#forceField").html(Globals.strikeForce);
+        });
+    </script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        h1, h2, p {
+            color: #FFF;
+        }
+        h1, h2 {
+            margin:0;
+            padding:0;
+        }
+    </style>
 </head>
 
 
 <body onload="webGLStart();" style="background-color: #000">
-  <canvas id="billiard-canvas" style="border: none;" width="1100" height="600"></canvas>
-  <br/>
-  <!--
-<input type="checkbox" id="lighting" checked /> Use lighting<br/>
-<br/>
-<h2>Directional light:</h2>
-
-<table style="border: 0; padding: 10px;">
-<tr>
-<td><b>Direction:</b>
-<td>X: <input type="text" id="lightDirectionX" value="-1.0" />
-<td>Y: <input type="text" id="lightDirectionY" value="-1.0" />
-<td>Z: <input type="text" id="lightDirectionZ" value="-1.0" />
-</tr>
-<tr>
-<td><b>Colour:</b>
-<td>R: <input type="text" id="directionalR" value="0.8" />
-<td>G: <input type="text" id="directionalG" value="0.8" />
-<td>B: <input type="text" id="directionalB" value="0.8" />
-</tr>
-</table>
-
-<h2>Ambient light:</h2>
-<table style="border: 0; padding: 10px;">
-<tr>
-<td><b>Colour:</b>
-<td>R: <input type="text" id="ambientR" value="0.2" />
-<td>G: <input type="text" id="ambientG" value="0.2" />
-<td>B: <input type="text" id="ambientB" value="0.2" />
-</tr>
-</table>-->
+<h1>The Billiard Game</h1>
+<h2>Project in course TNM085 at Linköping University</h2>
+<div>
+  <canvas id="billiard-canvas" style="float:left;border: none;" width="1000" height="500"></canvas>
+  <div style="float:left;padding-left:10px;padding-top:20px;color:#FFF">
+      <div id="slider-vertical" style="height: 200px;"></div>
+      <p style="color: #FFF; font-family:Sans-Serif;">
+          Selected force:<br/><span id="forceField"></span>
+      </p>
+      <p style="max-width: 200px;color: #FFF;font-family: Sans-serif; font-size:12px">
+          Controls:<br>
+          - scroll wheel zooms the camera<br>
+          - arrow keys rotates cue<br>
+          - space to strike
+      </p>
+  </div>
+  <div style="clear:both;">
+      <p>Created by:</p>
+  </div>
+</div>
 </body>
 
 </html>

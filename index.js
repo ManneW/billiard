@@ -238,3 +238,6 @@ function webGLStart() {
         }
     });
 }
+
+// Init the slider in the UI
+

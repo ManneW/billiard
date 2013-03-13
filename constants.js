@@ -61,5 +61,6 @@ const Constants = {
 
 var Globals = {
     previousLoop: { start: -1, end: -1 },
-    timeSinceLastLoop: -1
+    timeSinceLastLoop: -1,
+    strikeForce: 90
 };

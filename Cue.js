@@ -61,7 +61,7 @@ Cue.prototype.handleCue = function(cueball, e) {
 		}
         else if (e.key == "space") {
             e.stop();
-            cueball.strikeBallWithCue(90, this);
+            cueball.strikeBallWithCue(Globals.strikeForce, this);
         }
 	}
 	
