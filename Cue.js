@@ -37,9 +37,9 @@ Cue.prototype.update = function() {
     var all = new PhiloGL.Mat4();
     all = all.mulMat4(T);
     all = all.mulMat4(this.rotation);
-    all = all.translate((Constants.cue.length/2 + Constants.ball.radius*0.8), 0, 0);
+    all = all.translate((Constants.cue.length/2 + Constants.ball.radius), 0, 0);
     all = all.rotateAxis(Math.PI/2, new PhiloGL.Vec3(0,0,1));
-    all = all.translate(0,0,-((5/7*3)));
+    all = all.translate(0,0,-((2/5)*Constants.ball.radius));
 
     // Reset the internal matrix before multiplying with the newly created
     matrix.id();

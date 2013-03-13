@@ -4,9 +4,9 @@ function webGLStart() {
     };
 
     // Set up textures
-    var textures = ['ball.jpg', 'ball11.png'];
+    var textures = [];
     // Add all ball textures
-    for (var ballCounter = 1; ballCounter < 9; ballCounter += 1) {
+    for (var ballCounter = 0; ballCounter < 16; ballCounter += 1) {
         textures.push('ball' + ballCounter + '.png');
     }
 

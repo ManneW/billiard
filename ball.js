@@ -17,10 +17,8 @@ var Ball = function(startPosition, color, id) {
     this.totalRotation = new PhiloGL.Mat4();
     this.totalRotation.id();
 
-    var texfile = "ball.jpg";
-    if (id == 11 || (id > 0 && id < 9)) {
-        texfile = "ball" + id + ".png";
-    }
+
+    var texfile = "ball" + id + ".png";
 
     // Graphical representation of the billiard ball
     this.sphere = new PhiloGL.O3D.Sphere({
