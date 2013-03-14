@@ -175,8 +175,7 @@ Ball.prototype.step = function(timeStep) {
  * @param elapsedTimeInSeconds
  */
 Ball.prototype.looseVelocity = function(elapsedTimeInSeconds) {
-    var rollingFrictionalForce = this.velocity.scale(-1.0).unit();
-    var deltaW = PhiloGL.Vec3.cross(Constants.ball.tableNormal, rollingFrictionalForce).unit();
+    var deltaW = this.angularVelocity.unit().scale(-1.0);
         deltaW = deltaW.scale((Constants.ball.rollingFrictionalForceMagnitude * elapsedTimeInSeconds)/Constants.ball.inertia);
 
     this.angularVelocity.$add(deltaW);

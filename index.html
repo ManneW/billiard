@@ -27,6 +27,7 @@
                 slide: function(event, ui) {
                     Globals.strikeForce = ui.value;
                     $("#forceField").html(ui.value);
+                    ui.handle.blur();
                 }
             });
             $("#forceField").html(Globals.strikeForce);
