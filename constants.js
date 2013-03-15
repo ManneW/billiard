@@ -10,7 +10,7 @@ const privateConstants = {
     g: 9.82,
     ball: {
         radius: 3,
-        mass: 0.5,
+        mass: 0.17,
         friction: {
             rolling: 0.01,
             sliding: 0.2
@@ -62,5 +62,5 @@ const Constants = {
 var Globals = {
     previousLoop: { start: -1, end: -1 },
     timeSinceLastLoop: -1,
-    strikeForce: 90
+    strikeForce: 20
 };

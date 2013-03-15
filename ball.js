@@ -144,20 +144,20 @@ Ball.prototype.strikeBallWithCue = function(factor, cue) {
  * Simulate the ball movement for one time step.
  */
 Ball.prototype.step = function(timeStep) {
-    // Resting ball condition
-    if (this.angularVelocity.norm() < 0.1) {
+    // Check if we are moving forward or backwards in time
+    var factor = 1;
+    if (typeof timeStep != "undefined" && timeStep < 0) {
+        factor = -1;
+    }
+
+    var elapsedTimeInSeconds = factor * Globals.timeSinceLastLoop / 1000.0;
+    var elapsedTime = elapsedTimeInSeconds * 1000;
+
+    // Resting ball condition - check if angular velocity is less than change due to friction
+    if (this.angularVelocity.norm() < ((Constants.ball.rollingFrictionalForceMagnitude * elapsedTimeInSeconds)/Constants.ball.inertia)) {
         this.angularVelocity = new PhiloGL.Vec3(0,0,0);
         this.velocity = new PhiloGL.Vec3(0,0,0);
     } else {
-        // Check if we are moving forward or backwards in time
-        var factor = 1;
-        if (typeof timeStep != "undefined" && timeStep < 0) {
-            factor = -1;
-        }
-
-        var elapsedTimeInSeconds = factor * Globals.timeSinceLastLoop / 1000.0;
-        var elapsedTime = elapsedTimeInSeconds * 1000;
-
         this.updateVelocityBasedOnAngularVelocity();
 
         var dist = this.velocity.scale(0.1 * elapsedTime);
